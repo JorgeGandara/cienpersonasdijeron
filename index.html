@@ -1,0 +1,2325 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>100 Cristianos Dijeron — Show Interactivo en Vivo</title>
+  <!-- Tailwind CSS vía CDN para utilidades de layout rápidas + CSS3 personalizado de alto impacto -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Fuentes de Google para estética de estudio de TV (con fallback seguro offline) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Montserrat:wght@500;700;800;900&display=swap" rel="stylesheet">
+
+  <style>
+    /* ==========================================================================
+       VARIABLES Y ESTÉTICA DE TELEVISIÓN ("100 CRISTIANOS DIJERON")
+       ========================================================================== */
+    :root {
+      --bg-deep: #0b1329;
+      --bg-studio: #060b19;
+      --blue-card: #122452;
+      --blue-card-light: #1e3a8a;
+      --gold-primary: #f59e0b;
+      --gold-bright: #fbbf24;
+      --gold-pale: #fef3c7;
+      --strike-red: #ef4444;
+      --strike-red-dark: #991b1b;
+    }
+
+    * {
+      box-sizing: border-box;
+      user-select: none;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: var(--bg-deep);
+      background-image:
+        radial-gradient(circle at 50% 12%, rgba(37, 99, 235, 0.32) 0%, transparent 55%),
+        radial-gradient(circle at 15% 85%, rgba(245, 158, 11, 0.14) 0%, transparent 45%),
+        radial-gradient(circle at 85% 85%, rgba(245, 158, 11, 0.14) 0%, transparent 45%),
+        linear-gradient(180deg, #060a17 0%, #0b1329 50%, #050914 100%);
+      color: #ffffff;
+      font-family: 'Montserrat', system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    /* Fuente estilo marcador de TV */
+    .font-tv {
+      font-family: 'Bebas Neue', Impact, 'Arial Black', sans-serif;
+      letter-spacing: 0.05em;
+    }
+
+    /* Marco luminoso estilo estudio de TV */
+    .studio-frame {
+      border: 3px solid var(--gold-primary);
+      box-shadow:
+        0 0 25px rgba(245, 158, 11, 0.35),
+        inset 0 0 25px rgba(15, 23, 42, 0.9);
+      background: linear-gradient(180deg, rgba(15, 29, 66, 0.95) 0%, rgba(8, 15, 38, 0.98) 100%);
+      position: relative;
+    }
+
+    /* Luces decorativas del borde del tablero (Marquee Lights) */
+    .marquee-dots {
+      background-image: radial-gradient(var(--gold-bright) 22%, transparent 25%);
+      background-size: 20px 20px;
+      opacity: 0.35;
+    }
+
+    /* Gradiente metálico dorado */
+    .gold-gradient {
+      background: linear-gradient(135deg, #fde68a 0%, #fbbf24 35%, #d97706 75%, #fef3c7 100%);
+      color: #0b1329;
+    }
+
+    .gold-border-glow {
+      border: 2px solid var(--gold-bright);
+      box-shadow: 0 0 16px rgba(251, 191, 36, 0.4), inset 0 0 10px rgba(251, 191, 36, 0.15);
+    }
+
+    /* ==========================================================================
+       SISTEMA DE TARJETAS 3D (FLIP CARDS) PARA REVELAR RESPUESTAS
+       ========================================================================== */
+    .flip-card {
+      perspective: 1200px;
+      height: 82px;
+      cursor: pointer;
+    }
+
+    @media (min-width: 1280px) {
+      .flip-card {
+        height: 92px;
+      }
+    }
+
+    .flip-card-inner {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      transition: transform 0.65s cubic-bezier(0.22, 1, 0.36, 1);
+      transform-style: preserve-3d;
+    }
+
+    .flip-card.revealed .flip-card-inner {
+      transform: rotateX(180deg);
+    }
+
+    .flip-card-front,
+    .flip-card-back {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+      border-radius: 0.75rem;
+      overflow: hidden;
+    }
+
+    /* Cara Frontal (Oculta - Muestra el Número en óvalo dorado) */
+    .flip-card-front {
+      background: linear-gradient(180deg, #1d3678 0%, #0f1f4b 55%, #091436 100%);
+      border: 2.5px solid #fbbf24;
+      box-shadow:
+        0 6px 16px rgba(0, 0, 0, 0.55),
+        inset 0 2px 4px rgba(255, 255, 255, 0.25),
+        inset 0 -4px 8px rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+
+    .flip-card:not(.revealed):hover .flip-card-front {
+      border-color: #fef08a;
+      background: linear-gradient(180deg, #254699 0%, #152b66 55%, #0c1a45 100%);
+      box-shadow: 0 0 20px rgba(251, 191, 36, 0.55), inset 0 2px 6px rgba(255, 255, 255, 0.35);
+      transform: translateY(-2px);
+    }
+
+    .number-oval {
+      width: 66px;
+      height: 50px;
+      border-radius: 9999px;
+      background: radial-gradient(circle at 35% 30%, #fde68a 0%, #f59e0b 60%, #b45309 100%);
+      border: 2px solid #ffffff;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5), 0 0 12px rgba(245, 158, 11, 0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      font-size: 1.85rem;
+      color: #0b1329;
+      text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6);
+    }
+
+    /* Cara Trasera (Revelada - Muestra Respuesta + Puntos) */
+    .flip-card-back {
+      transform: rotateX(180deg);
+      background: linear-gradient(180deg, #2563eb 0%, #1d4ed8 50%, #1e3a8a 100%);
+      border: 3px solid #fde047;
+      box-shadow:
+        0 0 24px rgba(251, 191, 36, 0.5),
+        inset 0 2px 6px rgba(255, 255, 255, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .score-box {
+      height: 100%;
+      min-width: 92px;
+      background: linear-gradient(180deg, #fbbf24 0%, #f59e0b 55%, #d97706 100%);
+      color: #0b1329;
+      border-left: 3px solid #fef08a;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 0 0.75rem;
+      box-shadow: inset 2px 0 8px rgba(0, 0, 0, 0.25);
+    }
+
+    /* Casilla vacía decorativa cuando una pregunta tiene menos de 8 respuestas */
+    .empty-slot {
+      height: 82px;
+      border-radius: 0.75rem;
+      background: linear-gradient(180deg, rgba(15, 23, 42, 0.65) 0%, rgba(9, 14, 28, 0.8) 100%);
+      border: 1.5px solid rgba(245, 158, 11, 0.22);
+      box-shadow: inset 0 2px 10px rgba(0, 0, 0, 0.65);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    @media (min-width: 1280px) {
+      .empty-slot {
+        height: 92px;
+      }
+    }
+
+    /* ==========================================================================
+       ANIMACIONES DE STRIKE (X ROJA GIGANTE), PULSO DE PUNTOS Y CONFETI
+       ========================================================================== */
+    @keyframes strikePop {
+      0% {
+        transform: scale(0.2) rotate(-12deg);
+        opacity: 0;
+      }
+      45% {
+        transform: scale(1.15) rotate(4deg);
+        opacity: 1;
+      }
+      65% {
+        transform: scale(0.92) rotate(-2deg);
+      }
+      82% {
+        transform: scale(1.04) rotate(1deg);
+      }
+      100% {
+        transform: scale(1) rotate(0deg);
+        opacity: 1;
+      }
+    }
+
+    @keyframes screenShake {
+      0%, 100% { transform: translate(0, 0); }
+      15% { transform: translate(-14px, -8px); }
+      30% { transform: translate(14px, 8px); }
+      45% { transform: translate(-12px, 6px); }
+      60% { transform: translate(12px, -6px); }
+      75% { transform: translate(-6px, 4px); }
+    }
+
+    .animate-strike-pop {
+      animation: strikePop 0.55s cubic-bezier(0.18, 0.89, 0.32, 1.28) forwards;
+    }
+
+    .shake-screen {
+      animation: screenShake 0.45s ease-in-out;
+    }
+
+    @keyframes scoreBump {
+      0% { transform: scale(1); }
+      40% { transform: scale(1.22); color: #fde047; }
+      100% { transform: scale(1); }
+    }
+
+    .score-bump {
+      animation: scoreBump 0.45s ease-out;
+    }
+
+    /* Estilo de la X gigante */
+    .strike-x-box {
+      width: 190px;
+      height: 190px;
+      border-radius: 1.5rem;
+      background: radial-gradient(circle, #dc2626 0%, #991b1b 75%, #450a0a 100%);
+      border: 6px solid #fca5a5;
+      box-shadow:
+        0 0 60px rgba(239, 68, 68, 0.95),
+        inset 0 0 25px rgba(255, 255, 255, 0.35);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Bebas Neue', Impact, sans-serif;
+      font-size: 9.5rem;
+      line-height: 1;
+      color: #ffffff;
+      text-shadow: 0 6px 18px rgba(0, 0, 0, 0.8);
+    }
+
+    /* Scrollbar estilizada */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #060b19;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #1e3a8a;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #f59e0b;
+    }
+  </style>
+</head>
+
+<body id="appBody" class="flex flex-col justify-between min-h-screen select-none">
+
+  <!-- ========================================================================
+       LIENZO DE CONFETI PARA CELEBRACIÓN DE VICTORIA
+       ======================================================================== -->
+  <canvas id="confettiCanvas" class="fixed inset-0 pointer-events-none z-50 hidden"></canvas>
+
+  <!-- ========================================================================
+       1. BARRA SUPERIOR DE CONTROL DE CABINA / ESTUDIO
+       ======================================================================== -->
+  <header class="w-full bg-slate-950/90 border-b-2 border-amber-500/60 px-3 py-2.5 shadow-2xl z-30">
+    <div class="max-w-[1600px] mx-auto flex flex-wrap items-center justify-between gap-2">
+
+      <!-- Marca del Show -->
+      <div class="flex items-center gap-3">
+        <div class="gold-gradient px-3.5 py-1 rounded-xl font-tv text-2xl md:text-3xl tracking-wider shadow-lg flex items-center gap-2 border-2 border-white/80">
+          <span>🔥</span>
+          <span>100 CRISTIANOS DIJERON</span>
+        </div>
+        <span id="roundCategoryBadge" class="hidden xl:inline-flex items-center px-3 py-1 rounded-full text-xs font-extrabold uppercase tracking-wider bg-blue-900/80 text-amber-300 border border-amber-400/40">
+          Ronda 1
+        </span>
+      </div>
+
+      <!-- Selector de Rondas + Multiplicador -->
+      <div class="flex flex-wrap items-center gap-2">
+        <!-- Botón Ronda Anterior -->
+        <button onclick="changeRoundStep(-1)" title="Ronda Anterior"
+          class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-500/40 font-bold text-sm transition active:scale-95">
+          ◀
+        </button>
+
+        <!-- Selector Desplegable de Ronda -->
+        <select id="roundSelector" onchange="selectRound(parseInt(this.value, 10))"
+          class="bg-slate-900 text-white font-bold text-sm rounded-lg px-3 py-1.5 border-2 border-amber-500/70 focus:outline-none focus:border-amber-300 cursor-pointer max-w-[260px] sm:max-w-[330px] truncate">
+        </select>
+
+        <!-- Botón Siguiente Ronda -->
+        <button onclick="changeRoundStep(1)" title="Siguiente Ronda"
+          class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-500/40 font-bold text-sm transition active:scale-95">
+          ▶
+        </button>
+
+        <!-- Selector de Multiplicador (x1, x2, x3) -->
+        <div class="flex items-center bg-slate-900 p-0.5 rounded-lg border border-amber-500/50 ml-1" title="Multiplicador de Puntos de la Ronda">
+          <button id="multBtn1" onclick="setMultiplier(1)"
+            class="px-2.5 py-1 rounded-md text-xs font-extrabold transition">
+            x1 Normal
+          </button>
+          <button id="multBtn2" onclick="setMultiplier(2)"
+            class="px-2.5 py-1 rounded-md text-xs font-extrabold transition">
+            x2 Doble
+          </button>
+          <button id="multBtn3" onclick="setMultiplier(3)"
+            class="px-2.5 py-1 rounded-md text-xs font-extrabold transition">
+            x3 Triple
+          </button>
+        </div>
+      </div>
+
+      <!-- Acciones Rápidas del Conductor / Cabina -->
+      <div class="flex flex-wrap items-center gap-1.5">
+        <!-- Cronómetro Relámpago 20s -->
+        <button id="timerBtn" onclick="toggleLightningTimer()"
+          class="px-3 py-1.5 rounded-lg bg-indigo-900/90 hover:bg-indigo-800 text-indigo-100 border border-indigo-400/50 font-bold text-xs flex items-center gap-1.5 transition active:scale-95"
+          title="Iniciar/Detener Cronómetro de Ronda Relámpago (20s)">
+          <span>⚡</span>
+          <span id="timerDisplay">20s</span>
+        </button>
+
+        <!-- Gancho de Reflexión Espiritual (Barra Espaciadora) -->
+        <button onclick="toggleReflectionModal()"
+          class="px-3 py-1.5 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs flex items-center gap-1.5 shadow-md transition active:scale-95"
+          title="Abrir Gancho de Reflexión del Líder (Atajo: Barra Espaciadora)">
+          <span>📖</span>
+          <span>Reflexión</span>
+        </button>
+
+        <!-- Gestión de Equipos -->
+        <button onclick="openTeamsModal()"
+          class="px-3 py-1.5 rounded-lg bg-blue-800 hover:bg-blue-700 text-white border border-blue-400/50 font-bold text-xs flex items-center gap-1.5 transition active:scale-95"
+          title="Configurar Equipos, Nombres, Colores y Puntos">
+          <span>👥</span>
+          <span class="hidden sm:inline">Equipos</span>
+        </button>
+
+        <!-- Modo Administrador / Editor de Preguntas -->
+        <button onclick="openAdminModal()"
+          class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-500/40 font-bold text-xs flex items-center gap-1.5 transition active:scale-95"
+          title="Editor de Preguntas y Exportación/Importación JSON">
+          <span>⚙️</span>
+          <span class="hidden sm:inline">Editor</span>
+        </button>
+
+        <!-- Declarar Ganador / Confeti -->
+        <button onclick="triggerWinnerCelebration()"
+          class="px-3 py-1.5 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs flex items-center gap-1.5 shadow-md transition active:scale-95"
+          title="Celebrar Equipo Ganador con Fanfarria y Confeti">
+          <span>🏆</span>
+          <span class="hidden md:inline">Ganador</span>
+        </button>
+
+        <!-- Botón de Sonido -->
+        <button id="soundToggleBtn" onclick="toggleMute()"
+          class="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-amber-300 border border-slate-600 font-bold text-xs transition"
+          title="Activar / Silenciar Efectos de Sonido">
+          🔊
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========================================================================
+       2. ESCENARIO PRINCIPAL: MARCADORES DE EQUIPOS + BANCO + TABLERO 3D
+       ======================================================================== -->
+  <main class="flex-1 w-full max-w-[1600px] mx-auto px-3 sm:px-6 py-3 flex flex-col justify-between gap-3">
+
+    <!-- SECCIÓN SUPERIOR: EQUIPOS Y BANCO CENTRAL DE LA RONDA -->
+    <section class="grid grid-cols-1 lg:grid-cols-12 gap-3 items-stretch">
+
+      <!-- Contenedor Izquierdo de Equipos (Equipos pares: 1, 3...) -->
+      <div id="leftTeamsContainer" class="lg:col-span-4 flex flex-col justify-center gap-2.5"></div>
+
+      <!-- Marcador Central: BANCO DE LA RONDA + INDICADOR DE STRIKES -->
+      <div class="lg:col-span-4 studio-frame rounded-2xl p-3 flex flex-col items-center justify-between relative overflow-hidden">
+        <div class="marquee-dots absolute inset-0 pointer-events-none"></div>
+
+        <!-- Etiqueta de Ronda y Multiplicador Activo -->
+        <div class="z-10 flex items-center gap-2">
+          <span id="roundNumberLabel" class="text-xs font-extrabold uppercase tracking-widest text-amber-300 bg-slate-900/90 px-3 py-0.5 rounded-full border border-amber-400/40">
+            RONDA 1
+          </span>
+          <span id="multiplierBadge" class="text-xs font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-amber-400 text-slate-950 shadow">
+            PUNTOS x1
+          </span>
+        </div>
+
+        <!-- Contador Digital del Banco de la Ronda -->
+        <div class="z-10 my-1 text-center">
+          <div class="text-[11px] font-bold uppercase tracking-widest text-blue-200/80">
+            BANCO DE LA RONDA
+          </div>
+          <div id="roundBankDisplay"
+            class="font-tv text-6xl sm:text-7xl text-amber-400 drop-shadow-[0_4px_12px_rgba(245,158,11,0.55)] leading-none tracking-wider">
+            0
+          </div>
+        </div>
+
+        <!-- Indicador Visual de Strikes (3 Cruces Rojas) + Botones de Strike -->
+        <div class="z-10 w-full flex items-center justify-between gap-2 bg-slate-950/80 px-3 py-1.5 rounded-xl border border-slate-700/80">
+          <div class="flex items-center gap-1.5" title="Strikes acumulados en la ronda">
+            <span class="text-[11px] font-extrabold uppercase text-red-400 mr-1">Strikes:</span>
+            <div id="strikeSlot1" class="w-7 h-7 rounded-md bg-slate-900 border border-red-500/40 flex items-center justify-center font-tv text-xl text-slate-700 transition-all">X</div>
+            <div id="strikeSlot2" class="w-7 h-7 rounded-md bg-slate-900 border border-red-500/40 flex items-center justify-center font-tv text-xl text-slate-700 transition-all">X</div>
+            <div id="strikeSlot3" class="w-7 h-7 rounded-md bg-slate-900 border border-red-500/40 flex items-center justify-center font-tv text-xl text-slate-700 transition-all">X</div>
+          </div>
+
+          <div class="flex items-center gap-1">
+            <button onclick="triggerStrike()"
+              class="px-2.5 py-1 rounded-md bg-red-600 hover:bg-red-500 text-white font-extrabold text-xs shadow transition active:scale-95"
+              title="Disparar Strike con Buzzer (Atajo: Tecla X)">
+              ❌ +Strike (X)
+            </button>
+            <button onclick="triggerSingleErrorX()"
+              class="px-2 py-1 rounded-md bg-red-900/80 hover:bg-red-800 text-red-200 border border-red-500/40 font-bold text-xs transition active:scale-95"
+              title="Mostrar 1 X de fallo en intento de robo sin alterar el contador">
+              1X
+            </button>
+            <button onclick="clearStrikes()"
+              class="px-2 py-1 rounded-md bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs transition"
+              title="Limpiar Strikes (Atajo: Shift + X)">
+              ↺
+            </button>
+          </div>
+        </div>
+
+        <!-- Botonera Dinámica para Asignar o Dividir los Puntos del Banco -->
+        <div class="z-10 w-full mt-2">
+          <div class="text-[10px] font-bold uppercase tracking-wider text-center text-amber-200/80 mb-1">
+            ASIGNAR BANCO DE PUNTOS A:
+          </div>
+          <div id="awardButtonsContainer" class="flex flex-wrap items-center justify-center gap-1.5">
+            <!-- Generado dinámicamente según los equipos activos -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Contenedor Derecho de Equipos (Equipos impares: 2, 4...) -->
+      <div id="rightTeamsContainer" class="lg:col-span-4 flex flex-col justify-center gap-2.5"></div>
+
+    </section>
+
+    <!-- SECCIÓN CENTRAL: TABLERO PRINCIPAL DE PREGUNTA Y RESPUESTAS -->
+    <section class="studio-frame rounded-3xl p-4 sm:p-6 flex-1 flex flex-col justify-between shadow-2xl relative overflow-hidden">
+      <div class="marquee-dots absolute inset-0 pointer-events-none"></div>
+
+      <!-- Encabezado de la Pregunta Activa -->
+      <div class="z-10 mb-4">
+        <div class="bg-gradient-to-r from-slate-950/95 via-blue-950/95 to-slate-950/95 border-2 border-amber-400/80 rounded-2xl p-3.5 sm:p-5 shadow-xl relative">
+          <div class="flex items-center justify-between gap-2 mb-1">
+            <span id="roundThemeTitle" class="text-xs sm:text-sm font-extrabold uppercase tracking-wider text-amber-400">
+              TEMA DE LA RONDA
+            </span>
+            <button onclick="toggleQuestionVisibility()" id="toggleQuestionBtn"
+              class="text-[11px] font-bold px-2.5 py-0.5 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-600 transition"
+              title="Ocultar/Mostrar texto de la pregunta para crear suspenso">
+              👁️ Ocultar Pregunta
+            </button>
+          </div>
+          <h1 id="questionTextDisplay"
+            class="text-center font-extrabold text-xl sm:text-2xl md:text-3xl text-white leading-snug drop-shadow">
+            Cargando pregunta...
+          </h1>
+        </div>
+      </div>
+
+      <!-- Grid de Tarjetas 3D (2 Columnas estilo Family Feud, hasta 8 casillas) -->
+      <div id="answersBoardGrid" class="z-10 grid grid-cols-1 md:grid-cols-2 gap-3.5 sm:gap-4 my-auto">
+        <!-- Las tarjetas 1..8 se inyectan dinámicamente aquí -->
+      </div>
+
+      <!-- Barra Inferior de Controles del Tablero -->
+      <div class="z-10 mt-4 pt-3 border-t border-amber-500/30 flex flex-wrap items-center justify-between gap-2">
+        <!-- Atajos de teclado informativos -->
+        <div class="flex flex-wrap items-center gap-2 text-xs text-blue-200/90">
+          <span class="bg-slate-900/90 border border-slate-700 px-2.5 py-1 rounded-md font-bold">
+            ⌨️ <strong class="text-amber-300">1-8</strong>: Revelar
+          </span>
+          <span class="bg-slate-900/90 border border-slate-700 px-2.5 py-1 rounded-md font-bold">
+            <strong class="text-red-400">X</strong>: Strike
+          </span>
+          <span class="bg-slate-900/90 border border-slate-700 px-2.5 py-1 rounded-md font-bold">
+            <strong class="text-amber-300">Shift+X</strong>: Limpiar X
+          </span>
+          <span class="bg-slate-900/90 border border-slate-700 px-2.5 py-1 rounded-md font-bold">
+            <strong class="text-amber-300">Espacio</strong>: Reflexión
+          </span>
+        </div>
+
+        <!-- Botones de Acción del Tablero -->
+        <div class="flex flex-wrap items-center gap-2">
+          <button onclick="toggleHostCheatSheet()"
+            class="px-3 py-1.5 rounded-xl bg-slate-900/90 hover:bg-slate-800 text-amber-200 border border-amber-500/40 font-bold text-xs transition"
+            title="Ver/Ocultar guía secreta de respuestas para el conductor">
+            🕵️ Guía del Conductor
+          </button>
+
+          <button onclick="revealAllAnswers()"
+            class="px-3.5 py-1.5 rounded-xl bg-blue-700 hover:bg-blue-600 text-white border border-blue-400 font-extrabold text-xs shadow transition active:scale-95"
+            title="Revelar todas las respuestas del tablero (sin sumar puntos extra al banco)">
+            ✨ Revelar Todo
+          </button>
+
+          <button onclick="resetCurrentBoard()"
+            class="px-3.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-500/50 font-extrabold text-xs shadow transition active:scale-95"
+            title="Voltear todas las tarjetas, reiniciar banco de ronda y limpiar strikes">
+            🔄 Resetear Tablero
+          </button>
+        </div>
+      </div>
+
+      <!-- Panel Colapsable: Chuleta / Guía Secreta para el Conductor -->
+      <div id="hostCheatSheet" class="hidden z-10 mt-3 bg-slate-950/95 border border-amber-500/50 rounded-xl p-3 text-xs">
+        <div class="flex items-center justify-between mb-1.5">
+          <span class="font-extrabold text-amber-400 uppercase tracking-wider">
+            📋 Vista Rápida del Conductor (Haz clic en cualquiera para revelarla/ocultarla):
+          </span>
+          <button onclick="toggleHostCheatSheet()" class="text-slate-400 hover:text-white font-bold">✕ Cerrar</button>
+        </div>
+        <div id="hostCheatSheetList" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-2"></div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- ========================================================================
+       3. OVERLAY DE PANTALLA COMPLETA PARA STRIKES ("X", "XX", "XXX")
+       ======================================================================== -->
+  <div id="strikeOverlay" onclick="hideStrikeOverlay()"
+    class="fixed inset-0 bg-red-950/75 backdrop-blur-sm z-50 hidden flex-col items-center justify-center cursor-pointer">
+    <div id="strikeOverlayBoxes" class="flex flex-wrap items-center justify-center gap-6 px-4">
+      <!-- Se inyectan 1, 2 o 3 cajas X gigantes -->
+    </div>
+    <p class="mt-6 font-tv text-4xl sm:text-5xl text-red-200 tracking-widest uppercase drop-shadow-lg">
+      ¡RESPUESTA INCORRECTA!
+    </p>
+  </div>
+
+  <!-- ========================================================================
+       4. MODAL: GANCHO DE REFLEXIÓN ESPIRITUAL DEL LÍDER (BARRA ESPACIADORA)
+       ======================================================================== -->
+  <div id="reflectionModal"
+    class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 hidden items-center justify-center p-4">
+    <div class="studio-frame max-w-2xl w-full rounded-3xl p-6 sm:p-8 shadow-2xl border-2 border-amber-400 relative">
+      <button onclick="toggleReflectionModal(false)"
+        class="absolute top-4 right-4 w-9 h-9 rounded-full bg-slate-800 hover:bg-slate-700 text-amber-300 font-bold flex items-center justify-center border border-amber-400/40">
+        ✕
+      </button>
+
+      <div class="flex items-center gap-2 text-amber-400 font-extrabold text-xs uppercase tracking-widest mb-2">
+        <span>✨ MOMENTO DE CONEXIÓN ESPIRITUAL</span>
+        <span>•</span>
+        <span id="reflectionRoundLabel">RONDA 1</span>
+      </div>
+
+      <h2 id="reflectionTitle" class="text-2xl sm:text-3xl font-black text-white mb-3">
+        La Mesa y la Amistad
+      </h2>
+
+      <div id="reflectionVerseBadge"
+        class="inline-block bg-blue-900/90 text-amber-300 border border-amber-400/50 px-3.5 py-1 rounded-full text-xs font-extrabold mb-4">
+        📖 Pasaje Clave
+      </div>
+
+      <div class="bg-slate-900/95 border-l-4 border-amber-400 rounded-xl p-5 mb-5 shadow-inner">
+        <p id="reflectionText" class="text-base sm:text-lg text-blue-50 leading-relaxed font-medium">
+          Cargando reflexión...
+        </p>
+      </div>
+
+      <div class="bg-amber-500/10 border border-amber-400/30 rounded-xl p-4 mb-6">
+        <div class="text-xs font-extrabold uppercase tracking-wider text-amber-300 mb-1">
+          💡 Pregunta para cerrar con los jóvenes:
+        </div>
+        <p id="reflectionTakeaway" class="text-sm sm:text-base text-amber-100 font-semibold italic">
+          ¿Qué paso práctico puedes dar esta semana?
+        </p>
+      </div>
+
+      <div class="flex items-center justify-between">
+        <span class="text-xs text-slate-400">Presiona <strong class="text-amber-300">Espacio</strong> o <strong class="text-amber-300">Esc</strong> para volver al juego</span>
+        <button onclick="toggleReflectionModal(false)"
+          class="px-5 py-2.5 rounded-xl gold-gradient font-black text-sm shadow-lg hover:brightness-110 transition">
+          Volver al Tablero
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       5. MODAL: GESTIÓN DE EQUIPOS (2 O MÁS EQUIPOS, COLORES, AVATARES, PUNTOS)
+       ======================================================================== -->
+  <div id="teamsModal"
+    class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 hidden items-center justify-center p-4">
+    <div class="studio-frame max-w-3xl w-full rounded-3xl p-6 sm:p-7 shadow-2xl max-h-[90vh] flex flex-col">
+      <div class="flex items-center justify-between pb-3 border-b border-amber-500/30">
+        <div>
+          <h2 class="text-xl sm:text-2xl font-black text-amber-400 flex items-center gap-2">
+            <span>👥</span> Gestión de Equipos y Marcadores
+          </h2>
+          <p class="text-xs text-blue-200">Personaliza nombres, íconos, colores o ajusta los puntos manualmente (2 a 6 equipos).</p>
+        </div>
+        <button onclick="closeTeamsModal()"
+          class="w-9 h-9 rounded-full bg-slate-800 hover:bg-slate-700 text-amber-300 font-bold flex items-center justify-center">
+          ✕
+        </button>
+      </div>
+
+      <div id="teamsEditorList" class="flex-1 overflow-y-auto py-4 space-y-3 pr-1">
+        <!-- Filas de edición de equipos generadas dinámicamente -->
+      </div>
+
+      <div class="pt-3 border-t border-amber-500/30 flex flex-wrap items-center justify-between gap-2">
+        <div class="flex items-center gap-2">
+          <button onclick="addNewTeam()"
+            class="px-3.5 py-2 rounded-xl bg-blue-700 hover:bg-blue-600 text-white font-extrabold text-xs flex items-center gap-1.5 transition">
+            ➕ Agregar Equipo
+          </button>
+          <button onclick="resetAllTeamScores()"
+            class="px-3.5 py-2 rounded-xl bg-red-900/70 hover:bg-red-800 text-red-200 border border-red-500/40 font-bold text-xs transition">
+            🗑️ Reiniciar Puntos a 0
+          </button>
+        </div>
+
+        <button onclick="closeTeamsModal()"
+          class="px-5 py-2 rounded-xl gold-gradient font-black text-xs sm:text-sm shadow-lg">
+          ✅ Guardar y Cerrar
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       6. MODAL: ADMINISTRADOR / EDITOR DE PREGUNTAS Y RONDAS + JSON
+       ======================================================================== -->
+  <div id="adminModal"
+    class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-50 hidden items-center justify-center p-4">
+    <div class="studio-frame max-w-4xl w-full rounded-3xl p-6 sm:p-7 shadow-2xl max-h-[92vh] flex flex-col">
+      <!-- Cabecera del Editor -->
+      <div class="flex items-center justify-between pb-3 border-b border-amber-500/30">
+        <div>
+          <h2 class="text-xl sm:text-2xl font-black text-amber-400 flex items-center gap-2">
+            <span>⚙️</span> Editor de Rondas y Banco de Preguntas
+          </h2>
+          <p class="text-xs text-blue-200">Edita preguntas en vivo, agrega nuevas rondas o exporta/importa tu banco en formato JSON.</p>
+        </div>
+        <button onclick="closeAdminModal()"
+          class="w-9 h-9 rounded-full bg-slate-800 hover:bg-slate-700 text-amber-300 font-bold flex items-center justify-center">
+          ✕
+        </button>
+      </div>
+
+      <!-- Cuerpo del Editor -->
+      <div class="flex-1 overflow-y-auto py-4 space-y-4 pr-1">
+        <!-- Barra de Selección de Ronda a Editar + Crear / Eliminar Ronda -->
+        <div class="flex flex-wrap items-center justify-between gap-2 bg-slate-900/90 p-3 rounded-xl border border-slate-700">
+          <div class="flex items-center gap-2 flex-1 min-w-[240px]">
+            <label class="text-xs font-extrabold uppercase text-amber-300">Editar Ronda:</label>
+            <select id="adminRoundSelect" onchange="loadRoundIntoEditor(parseInt(this.value, 10))"
+              class="flex-1 bg-slate-950 text-white font-bold text-xs sm:text-sm rounded-lg px-3 py-2 border border-amber-500/60">
+            </select>
+          </div>
+          <div class="flex items-center gap-2">
+            <button onclick="createNewRoundInEditor()"
+              class="px-3 py-1.5 rounded-lg bg-emerald-700 hover:bg-emerald-600 text-white font-extrabold text-xs transition">
+              ➕ Nueva Ronda
+            </button>
+            <button onclick="deleteRoundInEditor()"
+              class="px-3 py-1.5 rounded-lg bg-red-900/80 hover:bg-red-800 text-red-200 font-bold text-xs transition">
+              🗑️ Eliminar Ronda
+            </button>
+          </div>
+        </div>
+
+        <!-- Campos de la Ronda -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+          <div class="sm:col-span-2">
+            <label class="block text-xs font-bold text-blue-200 mb-1">Título / Tema de la Ronda:</label>
+            <input id="editRoundTitle" type="text"
+              class="w-full bg-slate-900 text-white rounded-lg px-3 py-2 text-sm border border-slate-700 focus:border-amber-400 focus:outline-none" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-blue-200 mb-1">Multiplicador por defecto:</label>
+            <select id="editRoundMultiplier"
+              class="w-full bg-slate-900 text-white rounded-lg px-3 py-2 text-sm border border-slate-700 focus:border-amber-400 focus:outline-none">
+              <option value="1">x1 (Ronda Normal)</option>
+              <option value="2">x2 (Ronda Doble)</option>
+              <option value="3">x3 (Ronda Triple)</option>
+            </select>
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-blue-200 mb-1">Pregunta para el Tablero:</label>
+          <input id="editRoundQuestion" type="text"
+            class="w-full bg-slate-900 text-white rounded-lg px-3 py-2 text-sm border border-slate-700 focus:border-amber-400 focus:outline-none" />
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs font-bold text-blue-200 mb-1">Cita Bíblica / Referencia:</label>
+            <input id="editRoundVerse" type="text"
+              class="w-full bg-slate-900 text-white rounded-lg px-3 py-2 text-sm border border-slate-700 focus:border-amber-400 focus:outline-none" />
+          </div>
+          <div>
+            <label class="block text-xs font-bold text-blue-200 mb-1">Pregunta de Cierre para Jóvenes:</label>
+            <input id="editRoundTakeaway" type="text"
+              class="w-full bg-slate-900 text-white rounded-lg px-3 py-2 text-sm border border-slate-700 focus:border-amber-400 focus:outline-none" />
+          </div>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold text-blue-200 mb-1">Gancho de Reflexión Espiritual:</label>
+          <textarea id="editRoundReflection" rows="2"
+            class="w-full bg-slate-900 text-white rounded-lg px-3 py-2 text-sm border border-slate-700 focus:border-amber-400 focus:outline-none"></textarea>
+        </div>
+
+        <!-- Lista de Respuestas y Puntajes Base -->
+        <div class="bg-slate-900/80 rounded-xl p-3 border border-slate-700">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-xs font-extrabold uppercase text-amber-400">
+              Respuestas del Tablero (1 a 8 respuestas — Puntaje Base sin multiplicar)
+            </span>
+            <button onclick="addAnswerRowInEditor()"
+              class="px-2.5 py-1 rounded bg-blue-700 hover:bg-blue-600 text-white font-bold text-xs">
+              ➕ Añadir Respuesta
+            </button>
+          </div>
+          <div id="editAnswersContainer" class="space-y-2">
+            <!-- Filas de respuestas generadas dinámicamente -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Pie del Editor: Exportar/Importar JSON + Guardar -->
+      <div class="pt-3 border-t border-amber-500/30 flex flex-wrap items-center justify-between gap-2">
+        <div class="flex flex-wrap items-center gap-2">
+          <button onclick="exportQuestionsJSON()"
+            class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-500/40 font-bold text-xs flex items-center gap-1.5">
+            ⬇️ Exportar JSON
+          </button>
+          <label class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-blue-300 border border-blue-400/40 font-bold text-xs flex items-center gap-1.5 cursor-pointer">
+            ⬆️ Importar JSON
+            <input type="file" accept=".json" onchange="importQuestionsJSON(event)" class="hidden" />
+          </label>
+          <button onclick="restoreDefaultQuestions()"
+            class="px-3 py-2 rounded-xl bg-slate-900 hover:bg-slate-800 text-slate-400 hover:text-white font-bold text-xs">
+            ↺ Restaurar Originales
+          </button>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button onclick="saveRoundFromEditor()"
+            class="px-5 py-2 rounded-xl gold-gradient font-black text-xs sm:text-sm shadow-lg hover:brightness-110 transition">
+            💾 Guardar Cambios en la Ronda
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       7. MODAL DE VICTORIA Y CELEBRACIÓN DE GANADOR
+       ======================================================================== -->
+  <div id="winnerModal"
+    class="fixed inset-0 bg-slate-950/85 backdrop-blur-md z-40 hidden items-center justify-center p-4">
+    <div class="studio-frame max-w-xl w-full rounded-3xl p-8 text-center shadow-2xl border-4 border-amber-400">
+      <div class="text-6xl mb-3">🏆</div>
+      <div class="text-xs font-extrabold uppercase tracking-widest text-amber-300 mb-1">
+        ¡RESULTADO OFICIAL DE 100 CRISTIANOS DIJERON!
+      </div>
+      <h2 id="winnerTitleText" class="font-tv text-5xl sm:text-6xl text-white tracking-wider mb-2">
+        ¡EQUIPO GANADOR!
+      </h2>
+      <p id="winnerSubtitleText" class="text-lg text-amber-200 font-bold mb-6">
+        Con 0 puntos acumulados
+      </p>
+      <div id="winnerScoreboardSummary" class="space-y-2 mb-6 text-left bg-slate-900/90 p-4 rounded-2xl border border-slate-700"></div>
+      <button onclick="closeWinnerModal()"
+        class="px-6 py-3 rounded-xl gold-gradient font-black text-sm shadow-lg hover:brightness-110 transition">
+        Seguir Jugando / Cerrar
+      </button>
+    </div>
+  </div>
+
+  <!-- ========================================================================
+       LÓGICA JAVASCRIPT ES6+ INTEGRADA (AUDIO SINTETIZADO, ESTADO Y UI)
+       ======================================================================== -->
+  <script>
+    /* ========================================================================
+       1. BANCO DE PREGUNTAS PRECARGADO (RONDAS 1 A 8 + RONDAS RELÁMPAGO)
+       ======================================================================== */
+    const DEFAULT_ROUNDS = [
+      {
+        id: 1,
+        title: "Ronda 1: La Mesa y la Amistad",
+        question: "Cuando te sientas a la mesa con buenos amigos, ¿qué es lo que más disfrutas hacer?",
+        multiplier: 1,
+        verse: "Lucas 15:2 / Apocalipsis 3:20",
+        reflection: "En la cultura bíblica, sentarse a la mesa era señal de pacto, confianza y verdadera amistad. Jesús fue criticado porque le encantaba sentarse a comer con personas imperfectas para escucharlas y sanarlas. Hoy Él toca a tu puerta y quiere sentarse a la mesa contigo sin máscaras.",
+        takeaway: "¿Le estás dando a Jesús un lugar en tu mesa diaria o solo lo saludas de lejos los domingos?",
+        answers: [
+          { text: "Hablar / Desahogarse", points: 38 },
+          { text: "Reírse / Contar chistes", points: 26 },
+          { text: "Orar juntos", points: 17 },
+          { text: "Conocerse mejor", points: 11 },
+          { text: "Tomar fotos / Subir historias", points: 8 }
+        ]
+      },
+      {
+        id: 2,
+        title: "Ronda 2: Jesús como Amigo Cercano (Juan 15)",
+        question: "Si Jesús llegara físicamente hoy a pasar la tarde contigo como tu mejor amigo, ¿qué harías con Él?",
+        multiplier: 1,
+        verse: "Juan 15:15 — 'A ustedes los he llamado amigos'",
+        reflection: "En Juan 15:15 Jesús cambia todas las reglas de la religión y nos dice: 'Ya no los llamo siervos, porque el siervo no sabe lo que hace su señor; a ustedes los he llamado amigos'. Con un amigo cercano comes, pides consejo, lloras y compartes a tu familia.",
+        takeaway: "Si hoy mismo puedes hablar con Jesús igual que con tu mejor amigo, ¿qué consejo o abrazo necesitas pedirle hoy?",
+        answers: [
+          { text: "Invitarle comida", points: 35 },
+          { text: "Pedir consejo", points: 27 },
+          { text: "Llorar / Darle un abrazo", points: 18 },
+          { text: "Hacerle preguntas del cielo", points: 12 },
+          { text: "Presentarle a mi familia", points: 8 }
+        ]
+      },
+      {
+        id: 3,
+        title: "Ronda 3: Hábitos para sentir a Jesús cerca",
+        question: "¿Cuál es el hábito práctico que más ayuda a un joven a sentir a Jesús cerca en su día a día?",
+        multiplier: 1,
+        verse: "1 Tesalonicenses 5:17 / Santiago 4:8",
+        reflection: "La intimidad con Jesús no se trata de usar palabras difíciles, sino de incluirlo en todo lo que haces: hablándole en tu mente camino a clases, adorando con audífonos, leyendo Su Palabra con hambre práctica y caminando junto a la iglesia.",
+        takeaway: "Elige UNO de estos 5 hábitos para practicar todos los días durante esta semana.",
+        answers: [
+          { text: "Hablar en la mente / voz alta", points: 42 },
+          { text: "Alabanza / Música", points: 24 },
+          { text: "Leer Biblia práctica", points: 16 },
+          { text: "Congregarse", points: 11 },
+          { text: "Caminar en silencio", points: 7 }
+        ]
+      },
+      {
+        id: 4,
+        title: "Ronda 4: Obstáculos para intimar con Jesús",
+        question: "¿Cuál es el mayor obstáculo que frena a un joven de acercarse a Jesús con confianza?",
+        multiplier: 1,
+        verse: "Hebreos 4:15-16 / Romanos 8:1",
+        reflection: "La culpa, las distracciones del celular y la mentira de que Dios es un juez frío que solo espera castigarte son las mayores barreras. Pero la Biblia dice que Jesús entiende nuestras debilidades y nos invita a acercarnos confiadamente al trono de la gracia.",
+        takeaway: "¿Qué distracción o sentimiento de culpa vas a entregar hoy para volver a hablar con Jesús sin miedo?",
+        answers: [
+          { text: "Sentir culpa / Vergüenza", points: 39 },
+          { text: "Distracciones / Celular", points: 27 },
+          { text: "Creer que Dios es juez estricto", points: 18 },
+          { text: "Pereza espiritual", points: 10 },
+          { text: "Hipocresía", points: 6 }
+        ]
+      },
+      {
+        id: 5,
+        title: "Ronda 5: La Familia de la Fe (Mateo 12)",
+        question: "¿Cómo se nota que un grupo de amigos cristianos es una verdadera familia de la fe?",
+        multiplier: 1,
+        verse: "Mateo 12:49-50 / Proverbios 17:17",
+        reflection: "En Mateo 12, Jesús extendió la mano hacia sus discípulos y dijo: 'Aquí tienen a mi madre y a mis hermanos'. Una verdadera familia de la fe está contigo en las malas, te permite ser tú mismo sin apariencias, te corrige en amor y ora por ti aun cuando no lo pides.",
+        takeaway: "¿Estás siendo ese tipo de hermano y amigo para los jóvenes que tienes sentados a tu lado hoy?",
+        answers: [
+          { text: "Estar en las malas", points: 41 },
+          { text: "Ser uno mismo", points: 24 },
+          { text: "Corrección en amor", points: 15 },
+          { text: "Abrir puertas", points: 12 },
+          { text: "Orar sin pedirlo", points: 8 }
+        ]
+      },
+      {
+        id: 6,
+        title: "Ronda 6: Momentos imprudentes de Pedro",
+        question: "Menciona uno de los momentos más impulsivos o imprudentes de Pedro en los Evangelios:",
+        multiplier: 2,
+        verse: "Mateo 16:22 / Mateo 26:33-75 / Juan 18:10",
+        reflection: "Pedro era sincero pero impulsivo: prometió no fallar, sacó la espada, dudó sobre las aguas y terminó negando a Jesús tres veces. ¡Qué alivio saber que Jesús no escoge amigos perfectos, sino corazones dispuestos a ser transformados!",
+        takeaway: "Si Pedro falló tan fuerte y aun así fue usado por Dios, ¿por qué crees que tu error es el final de tu historia?",
+        answers: [
+          { text: "Negar a Jesús 3 veces", points: 44 },
+          { text: "Cortar la oreja al soldado", points: 23 },
+          { text: "Hundirse en el agua", points: 18 },
+          { text: "Decirle a Jesús que no fuera a la cruz", points: 9 },
+          { text: "Decir 'yo nunca te dejaré'", points: 6 }
+        ]
+      },
+      {
+        id: 7,
+        title: "Ronda 7: Primer cambio al ser amigo de Jesús",
+        question: "Cuando un joven empieza una amistad real con Jesús, ¿cuál es el primer cambio que se nota en su vida?",
+        multiplier: 2,
+        verse: "Hechos 4:13 / Filipenses 4:7",
+        reflection: "Cuando caminas con Jesús, el cambio no empieza por una lista de prohibiciones externas, sino desde adentro: llega una paz mental que quita la ansiedad, cambia tu forma de hablar y tratar a las personas, sana tu relación familiar y encuentras propósito.",
+        takeaway: "¿Cuál de estos cambios necesitas que Jesús empiece a hacer hoy en tu corazón?",
+        answers: [
+          { text: "Paz mental / Menos ansiedad", points: 43 },
+          { text: "Cambio al hablar / tratar", points: 22 },
+          { text: "Mejor relación familiar", points: 17 },
+          { text: "Dejar malos hábitos", points: 11 },
+          { text: "Sentido de vida", points: 7 }
+        ]
+      },
+      {
+        id: 8,
+        title: "Ronda 8: Restauración junto al fuego — Juan 21 [x2]",
+        question: "En Juan 21, Jesús prepara un desayuno junto al fuego para Pedro. ¿Qué mensaje le transmitió con ese gesto?",
+        multiplier: 2,
+        verse: "Juan 21:9-17 — El desayuno en la playa",
+        reflection: "Pedro negó a Jesús junto a un fuego de brasas (Juan 18:18), y Jesús resucitado encendió otro fuego de brasas en la orilla (Juan 21:9) con pan y pescado listos. Antes de hacerle cualquier pregunta, Jesús le dijo: 'Vamos a comer primero'. Jesús te perdona, vuelve a confiar en ti y te restaura en Su mesa.",
+        takeaway: "Jesús ya encendió el fuego y sirvió la mesa para restaurarte hoy. ¿Aceptas Su perdón y Su pregunta: '¿Me amas?'?",
+        answers: [
+          { text: "Te perdono", points: 38 },
+          { text: "Aún confío en ti", points: 26 },
+          { text: "Aquí estoy contigo", points: 18 },
+          { text: "¿Me amas?", points: 11 },
+          { text: "Vamos a comer primero", points: 7 }
+        ]
+      },
+      {
+        id: 9,
+        title: "Ronda Relámpago #1: Desempate Rápido [x3]",
+        question: "RONDA RELÁMPAGO: ¿Qué es lo primero que siente una persona cuando experimenta el abrazo y perdón de Jesús?",
+        multiplier: 3,
+        verse: "Salmos 32:1-2 / Juan 8:11",
+        reflection: "El perdón de Jesús quita el peso que llevábamos encima y nos devuelve el gozo, la paz y las ganas de correr de nuevo hacia nuestro propósito.",
+        takeaway: "¡Hoy puedes salir de este lugar totalmente libre y en paz con Dios!",
+        answers: [
+          { text: "Paz / Alivio profundo", points: 40 },
+          { text: "Alegría / Gozo", points: 25 },
+          { text: "Libertad / Se va el peso", points: 18 },
+          { text: "Gratitud / Ganas de llorar", points: 11 },
+          { text: "Fuerzas para empezar de nuevo", points: 6 }
+        ]
+      },
+      {
+        id: 10,
+        title: "Ronda Relámpago #2: Amigos de Dios en la Biblia [x3]",
+        question: "RONDA RELÁMPAGO: Además de Pedro, menciona un personaje bíblico famoso por su amistad íntima con Dios o Jesús:",
+        multiplier: 3,
+        verse: "Santiago 2:23 / Juan 11:5 / Éxodo 33:11",
+        reflection: "A lo largo de toda la Biblia vemos que Dios siempre buscó amigos: Abraham fue llamado amigo de Dios, con Moisés hablaba cara a cara como con un amigo, David tenía un corazón cercano al Suyo, y Juan se recostaba junto a Jesús en la mesa.",
+        takeaway: "La historia continúa hoy: ¡tú también fuiste creado para ser amigo íntimo de Jesús!",
+        answers: [
+          { text: "Juan (el discípulo amado)", points: 38 },
+          { text: "Abraham (amigo de Dios)", points: 24 },
+          { text: "David", points: 18 },
+          { text: "Lázaro, Marta y María", points: 12 },
+          { text: "Moisés", points: 8 }
+        ]
+      }
+    ];
+
+    /* ========================================================================
+       2. PALETA DE COLORES Y AVATARES PARA EQUIPOS PERSONALIZABLES
+       ======================================================================== */
+    const TEAM_COLOR_PRESETS = [
+      { id: "blue", name: "Azul Real", bg: "from-blue-700 to-blue-950", border: "border-blue-400", badge: "bg-blue-500" },
+      { id: "emerald", name: "Esmeralda", bg: "from-emerald-700 to-emerald-950", border: "border-emerald-400", badge: "bg-emerald-500" },
+      { id: "purple", name: "Púrpura Real", bg: "from-purple-700 to-purple-950", border: "border-purple-400", badge: "bg-purple-500" },
+      { id: "rose", name: "Rojo Fuego", bg: "from-rose-700 to-rose-950", border: "border-rose-400", badge: "bg-rose-500" },
+      { id: "amber", name: "Oro Imperial", bg: "from-amber-600 to-amber-950", border: "border-amber-300", badge: "bg-amber-500" },
+      { id: "cyan", name: "Cian Eléctrico", bg: "from-cyan-700 to-cyan-950", border: "border-cyan-400", badge: "bg-cyan-500" }
+    ];
+
+    const TEAM_ICONS = ["🦁", "🦅", "🔥", "⚡", "🛡️", "👑", "🕊️", "🌟", "🎸", "🚀"];
+
+    /* ========================================================================
+       3. ESTADO GLOBAL DE LA APLICACIÓN
+       ======================================================================== */
+    const state = {
+      rounds: JSON.parse(JSON.stringify(DEFAULT_ROUNDS)),
+      currentRoundIndex: 0,
+      multiplier: 1,
+      roundBank: 0,
+      strikes: 0,
+      revealedIndices: new Set(),
+      questionHidden: false,
+      muted: false,
+      lightningSeconds: 20,
+      lightningInterval: null,
+      teams: [
+        { id: 1, name: "Discípulos de Fuego", icon: "🔥", colorId: "blue", score: 0 },
+        { id: 2, name: "Leones de Judá", icon: "🦁", colorId: "emerald", score: 0 }
+      ]
+    };
+
+    /* ========================================================================
+       4. MOTOR DE SONIDO SINTETIZADO (WEB AUDIO API NATIVA - CERO ARCHIVOS EXTERNOS)
+       ======================================================================== */
+    class SoundEngine {
+      constructor() {
+        this.ctx = null;
+      }
+
+      init() {
+        if (!this.ctx) {
+          const AudioCtx = window.AudioContext || window.webkitAudioContext;
+          if (AudioCtx) {
+            this.ctx = new AudioCtx();
+          }
+        }
+        if (this.ctx && this.ctx.state === "suspended") {
+          this.ctx.resume();
+        }
+      }
+
+      /**
+       * Sonido de Acierto / Flip ("Ding-Chime" brillante de estudio de TV)
+       */
+      playFlipDing() {
+        if (state.muted) return;
+        this.init();
+        if (!this.ctx) return;
+
+        const now = this.ctx.currentTime;
+        // Acorde de campanita brillante (C6 + G6 + C7)
+        const freqs = [1046.5, 1567.98, 2093.0];
+        freqs.forEach((f, idx) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = idx === 0 ? "triangle" : "sine";
+          osc.frequency.setValueAtTime(f, now);
+
+          gain.gain.setValueAtTime(0.001, now);
+          gain.gain.linearRampToValueAtTime(0.26 / (idx + 1), now + 0.015);
+          gain.gain.exponentialRampToValueAtTime(0.0008, now + 0.75);
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.78);
+        });
+      }
+
+      /**
+       * Sonido de Strike / Error ("Buzzer" grave estilo Family Feud)
+       */
+      playStrikeBuzzer() {
+        if (state.muted) return;
+        this.init();
+        if (!this.ctx) return;
+
+        const now = this.ctx.currentTime;
+        const freqs = [92.5, 110.0, 138.59]; // Disonancia grave potente
+        freqs.forEach((f) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = "sawtooth";
+          osc.frequency.setValueAtTime(f, now);
+          osc.frequency.linearRampToValueAtTime(f * 0.94, now + 0.65);
+
+          gain.gain.setValueAtTime(0.001, now);
+          gain.gain.linearRampToValueAtTime(0.22, now + 0.02);
+          gain.gain.setValueAtTime(0.22, now + 0.5);
+          gain.gain.exponentialRampToValueAtTime(0.001, now + 0.72);
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(now);
+          osc.stop(now + 0.75);
+        });
+      }
+
+      /**
+       * Sonido de Cambio de Ronda / Transición ("Swoosh" + Arpegio ascendente)
+       */
+      playRoundTransition() {
+        if (state.muted) return;
+        this.init();
+        if (!this.ctx) return;
+
+        const now = this.ctx.currentTime;
+        const notes = [440, 554.37, 659.25, 880]; // A4 - C#5 - E5 - A5
+        notes.forEach((freq, i) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = "triangle";
+          const start = now + i * 0.065;
+          osc.frequency.setValueAtTime(freq, start);
+
+          gain.gain.setValueAtTime(0.001, start);
+          gain.gain.linearRampToValueAtTime(0.18, start + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.001, start + 0.35);
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(start);
+          osc.stop(start + 0.38);
+        });
+      }
+
+      /**
+       * Fanfarria de Victoria / Asignación de Puntos
+       */
+      playVictoryFanfare() {
+        if (state.muted) return;
+        this.init();
+        if (!this.ctx) return;
+
+        const now = this.ctx.currentTime;
+        // Melodía triunfal C5 - E5 - G5 - C6
+        const sequence = [
+          { f: 523.25, t: 0.0, d: 0.14 },
+          { f: 659.25, t: 0.13, d: 0.14 },
+          { f: 783.99, t: 0.26, d: 0.14 },
+          { f: 1046.5, t: 0.40, d: 0.65 }
+        ];
+        sequence.forEach((note) => {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = "triangle";
+          const start = now + note.t;
+          osc.frequency.setValueAtTime(note.f, start);
+
+          gain.gain.setValueAtTime(0.001, start);
+          gain.gain.linearRampToValueAtTime(0.25, start + 0.02);
+          gain.gain.exponentialRampToValueAtTime(0.001, start + note.d);
+
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start(start);
+          osc.stop(start + note.d + 0.02);
+        });
+      }
+
+      /**
+       * Tick corto para incremento de marcador o cronómetro relámpago
+       */
+      playTick(pitch = 880) {
+        if (state.muted) return;
+        this.init();
+        if (!this.ctx) return;
+
+        const now = this.ctx.currentTime;
+        const osc = this.ctx.createOscillator();
+        const gain = this.ctx.createGain();
+        osc.type = "sine";
+        osc.frequency.setValueAtTime(pitch, now);
+
+        gain.gain.setValueAtTime(0.08, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.05);
+
+        osc.connect(gain);
+        gain.connect(this.ctx.destination);
+        osc.start(now);
+        osc.stop(now + 0.055);
+      }
+    }
+
+    const sound = new SoundEngine();
+
+    function toggleMute() {
+      state.muted = !state.muted;
+      const btn = document.getElementById("soundToggleBtn");
+      btn.textContent = state.muted ? "🔇" : "🔊";
+      btn.classList.toggle("text-red-400", state.muted);
+      if (!state.muted) sound.playFlipDing();
+    }
+
+    /* ========================================================================
+       5. RENDERIZADO DE EQUIPOS Y BANCO DE PUNTOS CON ANIMACIÓN DE INCREMENTO
+       ======================================================================== */
+    function getTeamColorPreset(colorId) {
+      return TEAM_COLOR_PRESETS.find((c) => c.id === colorId) || TEAM_COLOR_PRESETS[0];
+    }
+
+    function renderTeamsAndAwardButtons() {
+      const leftContainer = document.getElementById("leftTeamsContainer");
+      const rightContainer = document.getElementById("rightTeamsContainer");
+      const awardContainer = document.getElementById("awardButtonsContainer");
+
+      leftContainer.innerHTML = "";
+      rightContainer.innerHTML = "";
+      awardContainer.innerHTML = "";
+
+      state.teams.forEach((team, idx) => {
+        const preset = getTeamColorPreset(team.colorId);
+
+        // Tarjeta del Equipo
+        const card = document.createElement("div");
+        card.className = `bg-gradient-to-br ${preset.bg} ${preset.border} border-2 rounded-2xl p-3 sm:p-4 shadow-xl flex items-center justify-between gap-3 relative overflow-hidden`;
+        card.innerHTML = `
+          <div class="flex items-center gap-3 min-w-0">
+            <div class="w-12 h-12 sm:w-14 sm:h-14 rounded-2xl bg-slate-950/60 border border-white/30 flex items-center justify-center text-2xl sm:text-3xl shadow-inner shrink-0">
+              ${team.icon}
+            </div>
+            <div class="min-w-0">
+              <div class="text-[10px] font-extrabold uppercase tracking-widest text-amber-300/90">
+                EQUIPO ${idx + 1}
+              </div>
+              <div class="font-extrabold text-base sm:text-lg text-white truncate" title="${escapeHtml(team.name)}">
+                ${escapeHtml(team.name)}
+              </div>
+              <div class="flex items-center gap-1 mt-1">
+                <button onclick="adjustTeamScore(${team.id}, -10)" class="px-1.5 py-0.5 text-[10px] font-bold bg-slate-950/60 hover:bg-slate-900 rounded text-slate-300 border border-white/10" title="Restar 10 pts">-10</button>
+                <button onclick="adjustTeamScore(${team.id}, 10)" class="px-1.5 py-0.5 text-[10px] font-bold bg-slate-950/60 hover:bg-slate-900 rounded text-amber-300 border border-white/10" title="Sumar 10 pts">+10</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="text-right shrink-0 bg-slate-950/75 px-4 py-2 rounded-xl border border-amber-400/40 min-w-[96px]">
+            <div class="text-[10px] font-bold uppercase tracking-wider text-slate-400">PUNTOS</div>
+            <div id="teamScore_${team.id}" class="font-tv text-4xl sm:text-5xl text-white leading-none tracking-wider">
+              ${team.score}
+            </div>
+          </div>
+        `;
+
+        if (idx % 2 === 0) {
+          leftContainer.appendChild(card);
+        } else {
+          rightContainer.appendChild(card);
+        }
+
+        // Botón para asignar el banco a este equipo
+        const awardBtn = document.createElement("button");
+        awardBtn.onclick = () => awardBankToTeam(team.id);
+        awardBtn.className = `px-2.5 py-1 rounded-lg ${preset.badge} hover:brightness-110 text-white font-extrabold text-xs shadow flex items-center gap-1 transition active:scale-95`;
+        awardBtn.title = `Asignar los puntos del banco a ${team.name}`;
+        awardBtn.innerHTML = `<span>${team.icon}</span><span class="max-w-[110px] truncate">+ ${escapeHtml(team.name)}</span>`;
+        awardContainer.appendChild(awardBtn);
+      });
+
+      // Botón para Dividir Puntos entre todos los equipos
+      const splitBtn = document.createElement("button");
+      splitBtn.onclick = splitBankPoints;
+      splitBtn.className = "px-2.5 py-1 rounded-lg bg-amber-500 hover:bg-amber-400 text-slate-950 font-extrabold text-xs shadow flex items-center gap-1 transition active:scale-95";
+      splitBtn.title = "Dividir los puntos del banco en partes iguales entre los equipos";
+      splitBtn.innerHTML = "⚖️ Dividir";
+      awardContainer.appendChild(splitBtn);
+    }
+
+    /**
+     * Anima un contador numérico de un valor inicial a un valor final
+     */
+    function animateNumberCounter(element, fromValue, toValue, duration = 550) {
+      if (!element) return;
+      element.classList.remove("score-bump");
+      void element.offsetWidth; // Reflow para reiniciar animación CSS
+      element.classList.add("score-bump");
+
+      const startTime = performance.now();
+      const diff = toValue - fromValue;
+
+      function step(now) {
+        const progress = Math.min((now - startTime) / duration, 1);
+        const eased = 1 - Math.pow(1 - progress, 3); // Ease-out cubic
+        const current = Math.round(fromValue + diff * eased);
+        element.textContent = current;
+        if (progress < 1) {
+          requestAnimationFrame(step);
+        } else {
+          element.textContent = toValue;
+        }
+      }
+      requestAnimationFrame(step);
+    }
+
+    function updateRoundBankDisplay(previousValue = state.roundBank) {
+      const bankEl = document.getElementById("roundBankDisplay");
+      animateNumberCounter(bankEl, previousValue, state.roundBank, 450);
+    }
+
+    /**
+     * Asigna los puntos acumulados en el banco al equipo seleccionado
+     */
+    function awardBankToTeam(teamId) {
+      if (state.roundBank <= 0) return;
+      const team = state.teams.find((t) => t.id === teamId);
+      if (!team) return;
+
+      const pointsToAdd = state.roundBank;
+      const prevScore = team.score;
+      team.score += pointsToAdd;
+
+      const prevBank = state.roundBank;
+      state.roundBank = 0;
+
+      sound.playVictoryFanfare();
+      updateRoundBankDisplay(prevBank);
+
+      const scoreEl = document.getElementById(`teamScore_${team.id}`);
+      animateNumberCounter(scoreEl, prevScore, team.score, 650);
+      saveStateToLocalStorage();
+    }
+
+    /**
+     * Divide los puntos del banco equitativamente entre todos los equipos activos
+     */
+    function splitBankPoints() {
+      if (state.roundBank <= 0 || state.teams.length === 0) return;
+      const share = Math.round(state.roundBank / state.teams.length);
+      const prevBank = state.roundBank;
+      state.roundBank = 0;
+
+      sound.playVictoryFanfare();
+      updateRoundBankDisplay(prevBank);
+
+      state.teams.forEach((team) => {
+        const prev = team.score;
+        team.score += share;
+        const scoreEl = document.getElementById(`teamScore_${team.id}`);
+        animateNumberCounter(scoreEl, prev, team.score, 650);
+      });
+      saveStateToLocalStorage();
+    }
+
+    function adjustTeamScore(teamId, delta) {
+      const team = state.teams.find((t) => t.id === teamId);
+      if (!team) return;
+      const prev = team.score;
+      team.score = Math.max(0, team.score + delta);
+      sound.playTick(delta > 0 ? 980 : 440);
+      const scoreEl = document.getElementById(`teamScore_${team.id}`);
+      animateNumberCounter(scoreEl, prev, team.score, 300);
+      saveStateToLocalStorage();
+    }
+
+    /* ========================================================================
+       6. TABLERO DE PREGUNTAS, MULTIPLICADORES Y TARJETAS FLIP 3D
+       ======================================================================== */
+    function getCurrentRound() {
+      return state.rounds[state.currentRoundIndex] || state.rounds[0];
+    }
+
+    function populateRoundSelector() {
+      const selector = document.getElementById("roundSelector");
+      selector.innerHTML = "";
+      state.rounds.forEach((r, idx) => {
+        const opt = document.createElement("option");
+        opt.value = idx;
+        opt.textContent = `${idx + 1}. ${r.title}`;
+        if (idx === state.currentRoundIndex) opt.selected = true;
+        selector.appendChild(opt);
+      });
+    }
+
+    function selectRound(index, playSound = true) {
+      if (index < 0 || index >= state.rounds.length) return;
+      state.currentRoundIndex = index;
+      const round = getCurrentRound();
+
+      state.multiplier = round.multiplier || 1;
+      state.roundBank = 0;
+      state.strikes = 0;
+      state.revealedIndices.clear();
+      state.questionHidden = false;
+
+      if (playSound) sound.playRoundTransition();
+      renderAll();
+    }
+
+    function changeRoundStep(step) {
+      const nextIndex = (state.currentRoundIndex + step + state.rounds.length) % state.rounds.length;
+      selectRound(nextIndex, true);
+    }
+
+    /**
+     * Cambia el multiplicador de puntos (x1, x2, x3) y recalcula inmediatamente
+     * tanto los puntajes del tablero como el banco acumulado de la ronda.
+     */
+    function setMultiplier(mult) {
+      if (![1, 2, 3].includes(mult)) return;
+      state.multiplier = mult;
+      sound.playTick(660 * mult * 0.5);
+
+      // Recalcular el banco según las respuestas actualmente reveladas
+      const prevBank = state.roundBank;
+      const round = getCurrentRound();
+      let newBank = 0;
+      state.revealedIndices.forEach((idx) => {
+        if (round.answers[idx]) {
+          newBank += round.answers[idx].points * state.multiplier;
+        }
+      });
+      state.roundBank = newBank;
+
+      updateMultiplierButtonsUI();
+      updateRoundBankDisplay(prevBank);
+      renderBoardCards();
+      renderHostCheatSheet();
+    }
+
+    function updateMultiplierButtonsUI() {
+      [1, 2, 3].forEach((m) => {
+        const btn = document.getElementById(`multBtn${m}`);
+        if (!btn) return;
+        if (state.multiplier === m) {
+          btn.className = "px-2.5 py-1 rounded-md text-xs font-black bg-amber-400 text-slate-950 shadow transition";
+        } else {
+          btn.className = "px-2.5 py-1 rounded-md text-xs font-extrabold text-amber-200/80 hover:text-white transition";
+        }
+      });
+
+      const badge = document.getElementById("multiplierBadge");
+      badge.textContent = `PUNTOS x${state.multiplier}`;
+      badge.className = state.multiplier === 1
+        ? "text-xs font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-amber-400 text-slate-950 shadow"
+        : state.multiplier === 2
+        ? "text-xs font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-orange-500 text-white shadow animate-pulse"
+        : "text-xs font-black uppercase tracking-wider px-2.5 py-0.5 rounded-full bg-rose-500 text-white shadow animate-pulse";
+    }
+
+    function toggleQuestionVisibility() {
+      state.questionHidden = !state.questionHidden;
+      renderQuestionHeader();
+    }
+
+    function renderQuestionHeader() {
+      const round = getCurrentRound();
+      document.getElementById("roundCategoryBadge").textContent = `Ronda ${state.currentRoundIndex + 1} de ${state.rounds.length}`;
+      document.getElementById("roundNumberLabel").textContent = `RONDA ${state.currentRoundIndex + 1}`;
+      document.getElementById("roundThemeTitle").textContent = `${round.title} (${round.verse || "Especial"})`;
+
+      const qDisplay = document.getElementById("questionTextDisplay");
+      const toggleBtn = document.getElementById("toggleQuestionBtn");
+      if (state.questionHidden) {
+        qDisplay.textContent = "••• PREGUNTA OCULTA (HAZ CLIC EN MOSTRAR CUANDO ESTÉS LISTO) •••";
+        qDisplay.classList.add("text-amber-300/70", "italic");
+        toggleBtn.textContent = "👁️ Mostrar Pregunta";
+      } else {
+        qDisplay.textContent = round.question;
+        qDisplay.classList.remove("text-amber-300/70", "italic");
+        toggleBtn.textContent = "👁️ Ocultar Pregunta";
+      }
+    }
+
+    /**
+     * Renderiza las tarjetas 3D del tablero (2 columnas estilo TV: 1-4 a la izquierda, 5-8 a la derecha)
+     */
+    function renderBoardCards() {
+      const round = getCurrentRound();
+      const grid = document.getElementById("answersBoardGrid");
+      grid.innerHTML = "";
+
+      const totalSlots = Math.max(8, round.answers.length);
+      const half = Math.ceil(totalSlots / 2);
+
+      // En pantallas medianas y grandes ordenamos estilo TV: Columna Izq (1..4), Columna Der (5..8)
+      const visualOrder = [];
+      for (let row = 0; row < half; row++) {
+        visualOrder.push(row);
+        if (row + half < totalSlots) {
+          visualOrder.push(row + half);
+        }
+      }
+
+      visualOrder.forEach((index) => {
+        const answer = round.answers[index];
+        if (answer) {
+          const isRevealed = state.revealedIndices.has(index);
+          const multipliedPoints = answer.points * state.multiplier;
+
+          const card = document.createElement("div");
+          card.id = `answerCard_${index}`;
+          card.className = `flip-card ${isRevealed ? "revealed" : ""}`;
+          card.onclick = () => toggleAnswerReveal(index);
+
+          card.innerHTML = `
+            <div class="flip-card-inner">
+              <!-- CARA OCULTA (NÚMERO) -->
+              <div class="flip-card-front">
+                <div class="number-oval font-tv">${index + 1}</div>
+              </div>
+
+              <!-- CARA REVELADA (RESPUESTA + PUNTAJE) -->
+              <div class="flip-card-back">
+                <div class="flex items-center gap-3 px-4 py-2 min-w-0 flex-1">
+                  <span class="w-7 h-7 rounded-full bg-blue-950 text-amber-300 border border-amber-400/60 font-tv text-lg flex items-center justify-center shrink-0">
+                    ${index + 1}
+                  </span>
+                  <span class="font-extrabold text-base sm:text-xl md:text-2xl text-white uppercase tracking-wide leading-tight break-words">
+                    ${escapeHtml(answer.text)}
+                  </span>
+                </div>
+                <div class="score-box shrink-0">
+                  <span class="font-tv text-4xl sm:text-5xl leading-none">${multipliedPoints}</span>
+                  ${
+                    state.multiplier > 1
+                      ? `<span class="text-[10px] font-extrabold uppercase tracking-tighter opacity-85">(${answer.points}×${state.multiplier})</span>`
+                      : ""
+                  }
+                </div>
+              </div>
+            </div>
+          `;
+          grid.appendChild(card);
+        } else {
+          // Casilla decorativa vacía del estudio de TV
+          const empty = document.createElement("div");
+          empty.className = "empty-slot hidden md:flex";
+          empty.innerHTML = `<span class="font-tv text-2xl text-amber-500/20 tracking-widest">100 CRISTIANOS</span>`;
+          grid.appendChild(empty);
+        }
+      });
+    }
+
+    /**
+     * Revela u oculta una respuesta al hacer clic o presionar teclas 1-8
+     */
+    function toggleAnswerReveal(index) {
+      const round = getCurrentRound();
+      const answer = round.answers[index];
+      if (!answer) return;
+
+      const cardEl = document.getElementById(`answerCard_${index}`);
+      const pointsValue = answer.points * state.multiplier;
+      const prevBank = state.roundBank;
+
+      if (!state.revealedIndices.has(index)) {
+        // Revelar respuesta
+        state.revealedIndices.add(index);
+        state.roundBank += pointsValue;
+        if (cardEl) cardEl.classList.add("revealed");
+        sound.playFlipDing();
+        updateRoundBankDisplay(prevBank);
+      } else {
+        // Si ya estaba revelada y el operador hace clic de nuevo, permite ocultarla por si fue un clic accidental
+        state.revealedIndices.delete(index);
+        state.roundBank = Math.max(0, state.roundBank - pointsValue);
+        if (cardEl) cardEl.classList.remove("revealed");
+        sound.playTick(420);
+        updateRoundBankDisplay(prevBank);
+      }
+      renderHostCheatSheet();
+    }
+
+    /**
+     * Revela todas las respuestas restantes al final de la ronda (sin alterar el banco de puntos ya jugado)
+     */
+    function revealAllAnswers() {
+      const round = getCurrentRound();
+      let anyNew = false;
+      round.answers.forEach((_, idx) => {
+        if (!state.revealedIndices.has(idx)) {
+          state.revealedIndices.add(idx);
+          anyNew = true;
+          const cardEl = document.getElementById(`answerCard_${idx}`);
+          if (cardEl) cardEl.classList.add("revealed");
+        }
+      });
+      if (anyNew) sound.playFlipDing();
+      renderHostCheatSheet();
+    }
+
+    /**
+     * Limpia / Resetea el tablero actual (oculta respuestas, pone el banco en 0 y limpia strikes)
+     */
+    function resetCurrentBoard() {
+      const prevBank = state.roundBank;
+      state.revealedIndices.clear();
+      state.roundBank = 0;
+      state.strikes = 0;
+      sound.playRoundTransition();
+      updateRoundBankDisplay(prevBank);
+      renderStrikesUI();
+      renderBoardCards();
+      renderHostCheatSheet();
+    }
+
+    /* ========================================================================
+       7. SISTEMA DE STRIKES (X ROJAS GIGANTES CON BUZZER Y PANTALLA COMPLETA)
+       ======================================================================== */
+    let strikeTimeoutId = null;
+
+    function renderStrikesUI() {
+      for (let i = 1; i <= 3; i++) {
+        const slot = document.getElementById(`strikeSlot${i}`);
+        if (!slot) continue;
+        if (i <= state.strikes) {
+          slot.className = "w-7 h-7 rounded-md bg-red-600 border-2 border-red-200 flex items-center justify-center font-tv text-xl text-white shadow-[0_0_12px_rgba(239,68,68,0.9)] transition-all scale-105";
+        } else {
+          slot.className = "w-7 h-7 rounded-md bg-slate-900 border border-red-500/40 flex items-center justify-center font-tv text-xl text-slate-700 transition-all";
+        }
+      }
+    }
+
+    /**
+     * Incrementa el contador de strikes (1 a 3) y dispara la animación en pantalla completa
+     */
+    function triggerStrike() {
+      if (state.strikes < 3) {
+        state.strikes += 1;
+      } else {
+        // Si ya tenía 3 strikes, vuelve a mostrar los 3 strikes
+        state.strikes = 3;
+      }
+      renderStrikesUI();
+      showStrikeOverlay(state.strikes);
+    }
+
+    /**
+     * Dispara una sola X en pantalla (útil cuando el equipo contrario falla el intento de robo)
+     */
+    function triggerSingleErrorX() {
+      showStrikeOverlay(1);
+    }
+
+    function showStrikeOverlay(count) {
+      sound.playStrikeBuzzer();
+
+      const appBody = document.getElementById("appBody");
+      appBody.classList.remove("shake-screen");
+      void appBody.offsetWidth;
+      appBody.classList.add("shake-screen");
+
+      const overlay = document.getElementById("strikeOverlay");
+      const boxesContainer = document.getElementById("strikeOverlayBoxes");
+      boxesContainer.innerHTML = "";
+
+      for (let i = 0; i < count; i++) {
+        const xBox = document.createElement("div");
+        xBox.className = "strike-x-box animate-strike-pop";
+        xBox.style.animationDelay = `${i * 0.08}s`;
+        xBox.textContent = "X";
+        boxesContainer.appendChild(xBox);
+      }
+
+      overlay.classList.remove("hidden");
+      overlay.classList.add("flex");
+
+      if (strikeTimeoutId) clearTimeout(strikeTimeoutId);
+      strikeTimeoutId = setTimeout(() => {
+        hideStrikeOverlay();
+      }, 1550);
+    }
+
+    function hideStrikeOverlay() {
+      const overlay = document.getElementById("strikeOverlay");
+      overlay.classList.add("hidden");
+      overlay.classList.remove("flex");
+    }
+
+    function clearStrikes() {
+      state.strikes = 0;
+      sound.playTick(520);
+      renderStrikesUI();
+      hideStrikeOverlay();
+    }
+
+    /* ========================================================================
+       8. GUÍA SECRETA DEL CONDUCTOR Y MODAL DE REFLEXIÓN ESPIRITUAL
+       ======================================================================== */
+    function toggleHostCheatSheet() {
+      const panel = document.getElementById("hostCheatSheet");
+      panel.classList.toggle("hidden");
+      renderHostCheatSheet();
+    }
+
+    function renderHostCheatSheet() {
+      const list = document.getElementById("hostCheatSheetList");
+      if (!list) return;
+      const round = getCurrentRound();
+      list.innerHTML = "";
+
+      round.answers.forEach((ans, idx) => {
+        const revealed = state.revealedIndices.has(idx);
+        const btn = document.createElement("button");
+        btn.onclick = () => toggleAnswerReveal(idx);
+        btn.className = `p-2 rounded-lg border text-left flex items-center justify-between transition ${
+          revealed
+            ? "bg-emerald-950/80 border-emerald-500/60 text-emerald-200"
+            : "bg-slate-900 hover:bg-slate-800 border-slate-700 text-slate-200"
+        }`;
+        btn.innerHTML = `
+          <span class="truncate font-bold"><strong>#${idx + 1}</strong> ${escapeHtml(ans.text)}</span>
+          <span class="ml-2 px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 font-extrabold">${ans.points * state.multiplier}</span>
+        `;
+        list.appendChild(btn);
+      });
+    }
+
+    function toggleReflectionModal(forceState) {
+      const modal = document.getElementById("reflectionModal");
+      const isHidden = modal.classList.contains("hidden");
+      const shouldOpen = typeof forceState === "boolean" ? forceState : isHidden;
+
+      if (shouldOpen) {
+        const round = getCurrentRound();
+        document.getElementById("reflectionRoundLabel").textContent = `RONDA ${state.currentRoundIndex + 1}`;
+        document.getElementById("reflectionTitle").textContent = round.title;
+        document.getElementById("reflectionVerseBadge").textContent = `📖 ${round.verse || "Reflexión Bíblica"}`;
+        document.getElementById("reflectionText").textContent = round.reflection || "Comparte una reflexión con los jóvenes sobre las respuestas de esta ronda.";
+        document.getElementById("reflectionTakeaway").textContent = round.takeaway || "¿Qué nos enseña Jesús en esta ronda?";
+
+        modal.classList.remove("hidden");
+        modal.classList.add("flex");
+        sound.playRoundTransition();
+      } else {
+        modal.classList.add("hidden");
+        modal.classList.remove("flex");
+      }
+    }
+
+    /* ========================================================================
+       9. CRONÓMETRO PARA RONDA RELÁMPAGO (20 SEGUNDOS CON SONIDO)
+       ======================================================================== */
+    function toggleLightningTimer() {
+      const display = document.getElementById("timerDisplay");
+      const btn = document.getElementById("timerBtn");
+
+      if (state.lightningInterval) {
+        clearInterval(state.lightningInterval);
+        state.lightningInterval = null;
+        state.lightningSeconds = 20;
+        display.textContent = "20s";
+        btn.classList.remove("bg-red-600", "animate-pulse");
+        btn.classList.add("bg-indigo-900/90");
+        return;
+      }
+
+      state.lightningSeconds = 20;
+      display.textContent = `${state.lightningSeconds}s`;
+      btn.classList.remove("bg-indigo-900/90");
+      btn.classList.add("bg-red-600", "animate-pulse");
+      sound.playTick(1000);
+
+      state.lightningInterval = setInterval(() => {
+        state.lightningSeconds -= 1;
+        display.textContent = `${state.lightningSeconds}s`;
+
+        if (state.lightningSeconds > 0 && state.lightningSeconds <= 5) {
+          sound.playTick(1200);
+        } else if (state.lightningSeconds > 5) {
+          sound.playTick(750);
+        }
+
+        if (state.lightningSeconds <= 0) {
+          clearInterval(state.lightningInterval);
+          state.lightningInterval = null;
+          display.textContent = "¡TIEMPO!";
+          btn.classList.remove("animate-pulse");
+          sound.playStrikeBuzzer();
+          setTimeout(() => {
+            state.lightningSeconds = 20;
+            display.textContent = "20s";
+            btn.classList.remove("bg-red-600");
+            btn.classList.add("bg-indigo-900/90");
+          }, 2200);
+        }
+      }, 1000);
+    }
+
+    /* ========================================================================
+       10. GESTIÓN DE EQUIPOS (MODAL PARA AGREGAR/EDITAR/ELIMINAR EQUIPOS)
+       ======================================================================== */
+    function openTeamsModal() {
+      renderTeamsEditorModal();
+      const modal = document.getElementById("teamsModal");
+      modal.classList.remove("hidden");
+      modal.classList.add("flex");
+    }
+
+    function closeTeamsModal() {
+      const modal = document.getElementById("teamsModal");
+      modal.classList.add("hidden");
+      modal.classList.remove("flex");
+      renderTeamsAndAwardButtons();
+      saveStateToLocalStorage();
+    }
+
+    function renderTeamsEditorModal() {
+      const container = document.getElementById("teamsEditorList");
+      container.innerHTML = "";
+
+      state.teams.forEach((team, idx) => {
+        const row = document.createElement("div");
+        row.className = "bg-slate-900/95 border border-slate-700 rounded-2xl p-3.5 flex flex-wrap items-center justify-between gap-3";
+
+        const iconOptions = TEAM_ICONS.map(
+          (ic) => `<option value="${ic}" ${team.icon === ic ? "selected" : ""}>${ic}</option>`
+        ).join("");
+
+        const colorOptions = TEAM_COLOR_PRESETS.map(
+          (c) => `<option value="${c.id}" ${team.colorId === c.id ? "selected" : ""}>${c.name}</option>`
+        ).join("");
+
+        row.innerHTML = `
+          <div class="flex items-center gap-2 flex-1 min-w-[220px]">
+            <span class="text-xs font-black text-amber-400 w-6">#${idx + 1}</span>
+            <select onchange="updateTeamField(${team.id}, 'icon', this.value)"
+              class="bg-slate-950 text-2xl rounded-xl p-1.5 border border-slate-700 cursor-pointer">
+              ${iconOptions}
+            </select>
+            <input type="text" value="${escapeHtml(team.name)}"
+              oninput="updateTeamField(${team.id}, 'name', this.value)"
+              placeholder="Nombre del equipo"
+              class="flex-1 bg-slate-950 text-white font-bold text-sm rounded-xl px-3 py-2 border border-slate-700 focus:border-amber-400 focus:outline-none" />
+          </div>
+
+          <div class="flex items-center gap-2">
+            <select onchange="updateTeamField(${team.id}, 'colorId', this.value)"
+              class="bg-slate-950 text-white text-xs font-bold rounded-xl px-2.5 py-2 border border-slate-700">
+              ${colorOptions}
+            </select>
+
+            <div class="flex items-center gap-1 bg-slate-950 rounded-xl px-2 py-1 border border-slate-700">
+              <span class="text-[10px] font-bold text-slate-400">Pts:</span>
+              <input type="number" value="${team.score}"
+                oninput="updateTeamField(${team.id}, 'score', parseInt(this.value || '0', 10))"
+                class="w-20 bg-transparent text-amber-300 font-extrabold text-sm text-right focus:outline-none" />
+            </div>
+
+            ${
+              state.teams.length > 2
+                ? `<button onclick="removeTeam(${team.id})" class="px-2.5 py-2 rounded-xl bg-red-950 hover:bg-red-900 text-red-300 font-bold text-xs" title="Eliminar equipo">🗑️</button>`
+                : ""
+            }
+          </div>
+        `;
+        container.appendChild(row);
+      });
+    }
+
+    function updateTeamField(teamId, field, value) {
+      const team = state.teams.find((t) => t.id === teamId);
+      if (!team) return;
+      team[field] = value;
+      renderTeamsAndAwardButtons();
+    }
+
+    function addNewTeam() {
+      if (state.teams.length >= 6) {
+        alert("El máximo recomendado para proyección en pantalla es de 6 equipos.");
+        return;
+      }
+      const nextNum = state.teams.length + 1;
+      const preset = TEAM_COLOR_PRESETS[(nextNum - 1) % TEAM_COLOR_PRESETS.length];
+      const icon = TEAM_ICONS[(nextNum - 1) % TEAM_ICONS.length];
+      state.teams.push({
+        id: Date.now(),
+        name: `Equipo ${nextNum}`,
+        icon,
+        colorId: preset.id,
+        score: 0
+      });
+      renderTeamsEditorModal();
+      renderTeamsAndAwardButtons();
+    }
+
+    function removeTeam(teamId) {
+      if (state.teams.length <= 2) return;
+      state.teams = state.teams.filter((t) => t.id !== teamId);
+      renderTeamsEditorModal();
+      renderTeamsAndAwardButtons();
+    }
+
+    function resetAllTeamScores() {
+      state.teams.forEach((t) => (t.score = 0));
+      renderTeamsEditorModal();
+      renderTeamsAndAwardButtons();
+      saveStateToLocalStorage();
+    }
+
+    /* ========================================================================
+       11. MODO ADMINISTRADOR / EDITOR DE PREGUNTAS Y EXPORTACIÓN/IMPORTACIÓN JSON
+       ======================================================================== */
+    let editingRoundIndex = 0;
+
+    function openAdminModal() {
+      editingRoundIndex = state.currentRoundIndex;
+      populateAdminRoundSelect();
+      loadRoundIntoEditor(editingRoundIndex);
+      const modal = document.getElementById("adminModal");
+      modal.classList.remove("hidden");
+      modal.classList.add("flex");
+    }
+
+    function closeAdminModal() {
+      const modal = document.getElementById("adminModal");
+      modal.classList.add("hidden");
+      modal.classList.remove("flex");
+    }
+
+    function populateAdminRoundSelect() {
+      const sel = document.getElementById("adminRoundSelect");
+      sel.innerHTML = "";
+      state.rounds.forEach((r, idx) => {
+        const opt = document.createElement("option");
+        opt.value = idx;
+        opt.textContent = `${idx + 1}. ${r.title}`;
+        if (idx === editingRoundIndex) opt.selected = true;
+        sel.appendChild(opt);
+      });
+    }
+
+    function loadRoundIntoEditor(idx) {
+      editingRoundIndex = idx;
+      const round = state.rounds[idx];
+      if (!round) return;
+
+      document.getElementById("editRoundTitle").value = round.title || "";
+      document.getElementById("editRoundMultiplier").value = String(round.multiplier || 1);
+      document.getElementById("editRoundQuestion").value = round.question || "";
+      document.getElementById("editRoundVerse").value = round.verse || "";
+      document.getElementById("editRoundTakeaway").value = round.takeaway || "";
+      document.getElementById("editRoundReflection").value = round.reflection || "";
+
+      renderEditorAnswerRows(round.answers);
+    }
+
+    function renderEditorAnswerRows(answers) {
+      const container = document.getElementById("editAnswersContainer");
+      container.innerHTML = "";
+
+      answers.forEach((ans, i) => {
+        const row = document.createElement("div");
+        row.className = "flex items-center gap-2";
+        row.innerHTML = `
+          <span class="w-6 text-xs font-extrabold text-amber-400">#${i + 1}</span>
+          <input type="text" value="${escapeHtml(ans.text)}" data-ans-text="${i}"
+            placeholder="Texto de la respuesta"
+            class="flex-1 bg-slate-950 text-white text-xs sm:text-sm rounded-lg px-3 py-1.5 border border-slate-700 focus:border-amber-400 focus:outline-none" />
+          <input type="number" value="${ans.points}" data-ans-points="${i}"
+            placeholder="Pts"
+            class="w-20 bg-slate-950 text-amber-300 font-bold text-xs sm:text-sm rounded-lg px-2.5 py-1.5 border border-slate-700 text-right focus:border-amber-400 focus:outline-none" />
+          <button onclick="removeAnswerRowInEditor(${i})"
+            class="px-2 py-1.5 rounded-lg bg-red-950 hover:bg-red-900 text-red-300 text-xs font-bold"
+            title="Eliminar respuesta">✕</button>
+        `;
+        container.appendChild(row);
+      });
+    }
+
+    function readCurrentEditorAnswersFromDOM() {
+      const textInputs = document.querySelectorAll("[data-ans-text]");
+      const pointInputs = document.querySelectorAll("[data-ans-points]");
+      const list = [];
+      textInputs.forEach((input, idx) => {
+        const text = input.value.trim();
+        const points = parseInt(pointInputs[idx]?.value || "0", 10) || 0;
+        if (text) list.push({ text, points });
+      });
+      return list;
+    }
+
+    function addAnswerRowInEditor() {
+      const current = readCurrentEditorAnswersFromDOM();
+      if (current.length >= 8) {
+        alert("El tablero admite hasta 8 respuestas por pregunta.");
+        return;
+      }
+      current.push({ text: "Nueva respuesta", points: 10 });
+      renderEditorAnswerRows(current);
+    }
+
+    function removeAnswerRowInEditor(removeIdx) {
+      const current = readCurrentEditorAnswersFromDOM();
+      if (current.length <= 1) return;
+      current.splice(removeIdx, 1);
+      renderEditorAnswerRows(current);
+    }
+
+    function saveRoundFromEditor() {
+      const round = state.rounds[editingRoundIndex];
+      if (!round) return;
+
+      round.title = document.getElementById("editRoundTitle").value.trim() || `Ronda ${editingRoundIndex + 1}`;
+      round.multiplier = parseInt(document.getElementById("editRoundMultiplier").value, 10) || 1;
+      round.question = document.getElementById("editRoundQuestion").value.trim() || "¿Pregunta de la ronda?";
+      round.verse = document.getElementById("editRoundVerse").value.trim();
+      round.takeaway = document.getElementById("editRoundTakeaway").value.trim();
+      round.reflection = document.getElementById("editRoundReflection").value.trim();
+
+      const updatedAnswers = readCurrentEditorAnswersFromDOM();
+      if (updatedAnswers.length > 0) {
+        round.answers = updatedAnswers;
+      }
+
+      saveStateToLocalStorage();
+      populateRoundSelector();
+      populateAdminRoundSelect();
+
+      if (editingRoundIndex === state.currentRoundIndex) {
+        state.multiplier = round.multiplier;
+      }
+      renderAll();
+      sound.playFlipDing();
+      closeAdminModal();
+    }
+
+    function createNewRoundInEditor() {
+      const newRound = {
+        id: Date.now(),
+        title: `Ronda ${state.rounds.length + 1}: Nueva Ronda Personalizada`,
+        question: "¿Escribe aquí la nueva pregunta para los jóvenes?",
+        multiplier: 1,
+        verse: "Juan 15:15",
+        reflection: "Escribe aquí el gancho de reflexión espiritual para cerrar esta pregunta.",
+        takeaway: "¿Qué aplicación práctica nos llevamos hoy?",
+        answers: [
+          { text: "Respuesta principal 1", points: 40 },
+          { text: "Respuesta 2", points: 25 },
+          { text: "Respuesta 3", points: 18 },
+          { text: "Respuesta 4", points: 10 },
+          { text: "Respuesta 5", points: 7 }
+        ]
+      };
+      state.rounds.push(newRound);
+      editingRoundIndex = state.rounds.length - 1;
+      populateAdminRoundSelect();
+      loadRoundIntoEditor(editingRoundIndex);
+      populateRoundSelector();
+    }
+
+    function deleteRoundInEditor() {
+      if (state.rounds.length <= 1) {
+        alert("Debe existir al menos una ronda en el juego.");
+        return;
+      }
+      state.rounds.splice(editingRoundIndex, 1);
+      editingRoundIndex = Math.max(0, editingRoundIndex - 1);
+      state.currentRoundIndex = Math.min(state.currentRoundIndex, state.rounds.length - 1);
+      populateAdminRoundSelect();
+      loadRoundIntoEditor(editingRoundIndex);
+      populateRoundSelector();
+      renderAll();
+      saveStateToLocalStorage();
+    }
+
+    function exportQuestionsJSON() {
+      const dataStr = JSON.stringify(state.rounds, null, 2);
+      const blob = new Blob([dataStr], { type: "application/json" });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "100-cristianos-dijeron-rondas.json";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    function importQuestionsJSON(event) {
+      const file = event.target.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        try {
+          const imported = JSON.parse(e.target.result);
+          if (Array.isArray(imported) && imported.length > 0 && imported[0].answers) {
+            state.rounds = imported;
+            state.currentRoundIndex = 0;
+            editingRoundIndex = 0;
+            saveStateToLocalStorage();
+            populateAdminRoundSelect();
+            loadRoundIntoEditor(0);
+            selectRound(0, true);
+          } else {
+            alert("El archivo JSON no tiene el formato de rondas esperado.");
+          }
+        } catch (err) {
+          alert("Error al leer el archivo JSON.");
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function restoreDefaultQuestions() {
+      state.rounds = JSON.parse(JSON.stringify(DEFAULT_ROUNDS));
+      state.currentRoundIndex = 0;
+      editingRoundIndex = 0;
+      localStorage.removeItem("100CristianosState_v1");
+      populateAdminRoundSelect();
+      loadRoundIntoEditor(0);
+      selectRound(0, true);
+    }
+
+    /* ========================================================================
+       12. CELEBRACIÓN DE GANADOR Y ANIMACIÓN DE CONFETI
+       ======================================================================== */
+    let confettiAnimId = null;
+
+    function triggerWinnerCelebration() {
+      sound.playVictoryFanfare();
+
+      // Ordenar equipos de mayor a menor puntuación
+      const sorted = [...state.teams].sort((a, b) => b.score - a.score);
+      const topScore = sorted[0]?.score || 0;
+      const winners = sorted.filter((t) => t.score === topScore);
+
+      const titleEl = document.getElementById("winnerTitleText");
+      const subEl = document.getElementById("winnerSubtitleText");
+      const summaryEl = document.getElementById("winnerScoreboardSummary");
+
+      if (winners.length > 1 && topScore > 0) {
+        titleEl.textContent = "¡EMPATE ÉPICO!";
+        subEl.textContent = `${winners.map((w) => w.name).join(" y ")} con ${topScore} puntos`;
+      } else {
+        const champ = winners[0];
+        titleEl.textContent = `${champ.icon} ¡${champ.name}!`;
+        subEl.textContent = `Campeones con ${champ.score} puntos acumulados`;
+      }
+
+      summaryEl.innerHTML = sorted
+        .map(
+          (t, i) => `
+          <div class="flex items-center justify-between py-1.5 px-3 rounded-xl ${
+            i === 0 ? "bg-amber-500/20 border border-amber-400/50" : "bg-slate-950/60"
+          }">
+            <span class="font-extrabold text-sm text-white">${i + 1}. ${t.icon} ${escapeHtml(t.name)}</span>
+            <span class="font-tv text-2xl text-amber-300">${t.score} PTS</span>
+          </div>
+        `
+        )
+        .join("");
+
+      const modal = document.getElementById("winnerModal");
+      modal.classList.remove("hidden");
+      modal.classList.add("flex");
+      startConfetti();
+    }
+
+    function closeWinnerModal() {
+      const modal = document.getElementById("winnerModal");
+      modal.classList.add("hidden");
+      modal.classList.remove("flex");
+      stopConfetti();
+    }
+
+    function startConfetti() {
+      const canvas = document.getElementById("confettiCanvas");
+      canvas.classList.remove("hidden");
+      const ctx = canvas.getContext("2d");
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+
+      const colors = ["#fbbf24", "#f59e0b", "#3b82f6", "#10b981", "#ec4899", "#ffffff"];
+      const pieces = Array.from({ length: 130 }, () => ({
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height - canvas.height,
+        w: Math.random() * 10 + 6,
+        h: Math.random() * 6 + 4,
+        color: colors[Math.floor(Math.random() * colors.length)],
+        vy: Math.random() * 3.5 + 2.2,
+        vx: (Math.random() - 0.5) * 2,
+        angle: Math.random() * Math.PI * 2,
+        spin: (Math.random() - 0.5) * 0.15
+      }));
+
+      function draw() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        pieces.forEach((p) => {
+          p.y += p.vy;
+          p.x += p.vx;
+          p.angle += p.spin;
+          if (p.y > canvas.height) {
+            p.y = -15;
+            p.x = Math.random() * canvas.width;
+          }
+          ctx.save();
+          ctx.translate(p.x, p.y);
+          ctx.rotate(p.angle);
+          ctx.fillStyle = p.color;
+          ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+          ctx.restore();
+        });
+        confettiAnimId = requestAnimationFrame(draw);
+      }
+      if (confettiAnimId) cancelAnimationFrame(confettiAnimId);
+      draw();
+    }
+
+    function stopConfetti() {
+      if (confettiAnimId) {
+        cancelAnimationFrame(confettiAnimId);
+        confettiAnimId = null;
+      }
+      const canvas = document.getElementById("confettiCanvas");
+      canvas.classList.add("hidden");
+    }
+
+    /* ========================================================================
+       13. ATAJOS DE TECLADO PARA EL OPERADOR DE CABINA
+       ======================================================================== */
+    window.addEventListener("keydown", (e) => {
+      // Ignorar atajos si el usuario está escribiendo dentro de un input o textarea
+      const tag = document.activeElement?.tagName?.toLowerCase();
+      if (tag === "input" || tag === "textarea" || tag === "select") {
+        if (e.key === "Escape") {
+          document.activeElement.blur();
+        }
+        return;
+      }
+
+      // Cerrar modales con Escape
+      if (e.key === "Escape") {
+        toggleReflectionModal(false);
+        closeTeamsModal();
+        closeAdminModal();
+        closeWinnerModal();
+        hideStrikeOverlay();
+        return;
+      }
+
+      // Barra Espaciadora: Abrir / Cerrar modal de reflexión espiritual
+      if (e.code === "Space") {
+        e.preventDefault();
+        toggleReflectionModal();
+        return;
+      }
+
+      // Teclas 1 a 8: Revelar/Ocultar la respuesta correspondiente
+      if (/^[1-8]$/.test(e.key)) {
+        const index = parseInt(e.key, 10) - 1;
+        toggleAnswerReveal(index);
+        return;
+      }
+
+      // Tecla X o Shift + X: Disparar Strike o Limpiar Strikes
+      if (e.key.toLowerCase() === "x") {
+        e.preventDefault();
+        if (e.shiftKey) {
+          clearStrikes();
+        } else {
+          triggerStrike();
+        }
+        return;
+      }
+    });
+
+    /* ========================================================================
+       14. PERSISTENCIA LOCAL Y UTILIDADES
+       ======================================================================== */
+    function escapeHtml(str) {
+      return String(str ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;");
+    }
+
+    function saveStateToLocalStorage() {
+      try {
+        const payload = {
+          rounds: state.rounds,
+          teams: state.teams
+        };
+        localStorage.setItem("100CristianosState_v1", JSON.stringify(payload));
+      } catch (_) {}
+    }
+
+    function loadStateFromLocalStorage() {
+      try {
+        const raw = localStorage.getItem("100CristianosState_v1");
+        if (!raw) return;
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed.rounds) && parsed.rounds.length > 0) {
+          state.rounds = parsed.rounds;
+        }
+        if (Array.isArray(parsed.teams) && parsed.teams.length >= 2) {
+          state.teams = parsed.teams;
+        }
+      } catch (_) {}
+    }
+
+    function renderAll() {
+      populateRoundSelector();
+      renderTeamsAndAwardButtons();
+      renderQuestionHeader();
+      updateMultiplierButtonsUI();
+      updateRoundBankDisplay(state.roundBank);
+      renderStrikesUI();
+      renderBoardCards();
+      renderHostCheatSheet();
+    }
+
+    // Inicialización al cargar la página
+    window.addEventListener("DOMContentLoaded", () => {
+      loadStateFromLocalStorage();
+      const initialRound = getCurrentRound();
+      state.multiplier = initialRound.multiplier || 1;
+      renderAll();
+    });
+  </script>
+</body>
+</html>
