@@ -325,9 +325,9 @@
           <!-- Botón Principal: Abrir Cabina del Conductor / Editor en Ventana Aparte -->
           <button onclick="openControlBoothWindow()"
             class="px-3.5 py-1.5 rounded-xl gold-gradient font-black text-xs sm:text-sm shadow-lg hover:brightness-110 flex items-center gap-2 transition active:scale-95"
-            title="Abre una ventana independiente para tu portátil con las respuestas, controles, equipos y editor de preguntas">
+            title="Abre una ventana independiente para tu portátil con las respuestas, botón de Respuesta Incorrecta (X) y el Editor de Rondas">
             <span>🎛️</span>
-            <span>Abrir Cabina / Editor (Ventana Aparte)</span>
+            <span>Abrir Cabina / Respuestas (Ventana Aparte)</span>
           </button>
 
           <!-- Cambiar esta misma pestaña a Modo Cabina (útil si usas otra pestaña/dispositivo) -->
@@ -457,11 +457,15 @@
       <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3">
         <div class="flex items-center gap-3">
           <span class="px-3 py-1 rounded-lg gold-gradient font-black text-xs uppercase tracking-wider shadow">
-            🎛️ CABINA DEL CONDUCTOR / PRODUCTOR
+            🎛️ CABINA DEL CONDUCTOR (VENTANA APARTE)
           </span>
           <span id="syncStatusBadge" class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold bg-emerald-950 text-emerald-300 border border-emerald-500/50">
             <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-            <span>Sincronizado en vivo con el Proyector</span>
+            <span>Conectado en vivo con la Proyección</span>
+          </span>
+          <!-- Aviso visual en la Cabina cuando se está proyectando la X roja en la TV -->
+          <span id="boothStrikeActiveFeedback" class="hidden items-center gap-1.5 px-3 py-1 rounded-full text-xs font-black bg-red-600 text-white border border-red-200 shadow-lg animate-bounce">
+            🚨 ¡PROYECTANDO "X" DE RESPUESTA INCORRECTA EN PANTALLA!
           </span>
         </div>
 
@@ -469,7 +473,7 @@
         <div class="flex flex-wrap items-center gap-1.5">
           <button id="tabBtnLive" onclick="switchBoothTab('live')"
             class="px-3.5 py-1.5 rounded-xl font-extrabold text-xs bg-amber-400 text-slate-950 shadow transition">
-            🎬 Control en Vivo y Respuestas
+            🎬 Respuestas y Proyección en Vivo
           </button>
           <button id="tabBtnTeams" onclick="switchBoothTab('teams')"
             class="px-3.5 py-1.5 rounded-xl font-extrabold text-xs bg-slate-800 hover:bg-slate-700 text-blue-200 border border-slate-700 transition">
@@ -492,18 +496,18 @@
     <div class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6">
 
       <!-- ====================================================================
-           PESTAÑA 1: CONTROL EN VIVO Y RESPUESTAS SECRETAS (CHULETA)
+           PESTAÑA 1: PANEL CENTRAL DE RESPUESTAS + BOTÓN DE RESPUESTA INCORRECTA
            ==================================================================== -->
       <div id="boothTabLive" class="grid grid-cols-1 lg:grid-cols-12 gap-5">
 
-        <!-- Columna Izquierda (7 cols): Respuestas Secretas + Control de Pregunta y Reflexión -->
+        <!-- Columna Principal (7 cols): Ver Respuestas Secretas + Proyectar Acierto o Respuesta Incorrecta -->
         <div class="lg:col-span-7 space-y-4">
 
           <!-- Selector de Ronda y Multiplicador -->
           <div class="bg-slate-900 border border-amber-500/40 rounded-2xl p-4 shadow-lg space-y-3">
             <div class="flex flex-wrap items-center justify-between gap-2">
               <span class="text-xs font-extrabold uppercase tracking-wider text-amber-400">
-                1. SELECCIÓN DE RONDA Y MULTIPLICADOR
+                1. SELECCIÓN DE RONDA Y MULTIPLICADOR DE PUNTOS
               </span>
               <div class="flex items-center bg-slate-950 p-1 rounded-xl border border-amber-500/40">
                 <button id="boothMultBtn1" onclick="setMultiplier(1)" class="px-3 py-1 rounded-lg text-xs font-extrabold transition">x1 Normal</button>
@@ -527,14 +531,14 @@
             </div>
           </div>
 
-          <!-- Tarjeta de Pregunta y Respuestas Secretas para el Conductor -->
-          <div class="bg-slate-900 border-2 border-amber-400/70 rounded-2xl p-4 shadow-xl space-y-4">
+          <!-- PANEL UNIFICADO DEL JUEZ: VER RESPUESTAS PARA SABER CUÁL PROYECTAR O LANZAR "X" INCORRECTA -->
+          <div class="bg-slate-900 border-2 border-amber-400 rounded-2xl p-4 sm:p-5 shadow-2xl space-y-4">
             <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-3">
               <div>
                 <span class="text-[11px] font-extrabold uppercase tracking-wider text-emerald-400 block">
-                  🔒 SOLO VISIBLE EN ESTA VENTANA DE CABINA
+                  🔒 VISTA SECRETA DEL CONDUCTOR (NO SE VE EN EL PROYECTOR)
                 </span>
-                <h2 id="boothRoundTitle" class="text-lg font-black text-white">Ronda 1</h2>
+                <h2 id="boothRoundTitle" class="text-lg sm:text-xl font-black text-white">Ronda 1</h2>
               </div>
 
               <div class="flex flex-wrap items-center gap-2">
@@ -544,32 +548,113 @@
                 </button>
                 <button onclick="revealAllAnswers()"
                   class="px-3 py-1.5 rounded-xl bg-blue-700 hover:bg-blue-600 text-white font-extrabold text-xs shadow transition">
-                  ✨ Revelar Todo
+                  ✨ Proyectar Todas
                 </button>
                 <button onclick="resetCurrentBoard()"
                   class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-red-300 border border-red-500/40 font-extrabold text-xs transition">
-                  🔄 Resetear Ronda
+                  🔄 Ocultar Todas / Reset
                 </button>
               </div>
             </div>
 
-            <!-- Texto de la pregunta para que el conductor la lea cómodamente -->
+            <!-- Pregunta actual para que el conductor la lea -->
             <div class="bg-slate-950 border border-slate-800 rounded-xl p-3.5">
-              <div class="text-[10px] font-bold uppercase text-slate-400 mb-1">PREGUNTA PARA LEER A LOS JÓVENES:</div>
+              <div class="text-[10px] font-bold uppercase text-slate-400 mb-1">PREGUNTA EN JUEGO:</div>
               <p id="boothQuestionText" class="text-base sm:text-lg font-extrabold text-amber-200 leading-snug"></p>
             </div>
 
-            <!-- Botonera de Respuestas Secretas (Haz clic para voltear en el Proyector) -->
+            <!-- LISTA DE RESPUESTAS VISIBLES PARA EL CONDUCTOR (CLIC PARA PROYECTAR EN TV) -->
             <div>
               <div class="flex items-center justify-between mb-2">
                 <span class="text-xs font-extrabold uppercase tracking-wider text-amber-400">
-                  2. RESPUESTAS DEL TABLERO (CLIC O TECLAS 1-8 PARA REVELAR EN TV):
+                  ✅ SI EL JOVEN ACIERTA, ELIGE QUÉ RESPUESTA PROYECTAR (CLIC O TECLAS 1-8):
                 </span>
               </div>
-              <div id="boothAnswersList" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                <!-- Botones de respuestas con texto y puntaje generados dinámicamente -->
+              <div id="boothAnswersList" class="space-y-2.5">
+                <!-- Filas de respuestas con botón "PROYECTAR EN TV" generadas dinámicamente -->
               </div>
             </div>
+
+            <!-- BLOQUE DESTACADO: BOTÓN DE MOSTRAR EN LA PROYECCIÓN LA ANIMACIÓN DE RESPUESTA INCORRECTA -->
+            <div class="pt-3 border-t-2 border-red-500/40 space-y-2.5">
+              <div class="flex items-center justify-between">
+                <span class="text-xs font-extrabold uppercase tracking-wider text-red-400">
+                  ❌ SI LA RESPUESTA NO ESTÁ EN LA LISTA (MOSTRAR ANIMACIÓN EN PROYECCIÓN):
+                </span>
+                <span id="boothStrikesCountLabel" class="px-3 py-0.5 rounded-full text-xs font-black bg-red-950 text-red-200 border border-red-500/50">
+                  Strikes acumulados: 0 / 3
+                </span>
+              </div>
+
+              <!-- Botón Gigante Principal para proyectar Respuesta Incorrecta (+1 Strike) -->
+              <button onclick="triggerStrike()"
+                class="w-full py-4 px-5 rounded-2xl bg-gradient-to-r from-red-700 via-red-600 to-red-700 hover:from-red-600 hover:to-red-500 text-white font-black text-base sm:text-lg shadow-[0_0_25px_rgba(239,68,68,0.45)] border-2 border-red-300 flex items-center justify-center gap-3 transition active:scale-95">
+                <span class="text-2xl">❌</span>
+                <span>MOSTRAR ANIMACIÓN DE "¡RESPUESTA INCORRECTA!" EN PROYECCIÓN (Tecla X)</span>
+              </button>
+
+              <!-- Botones rápidos para proyectar 1X, 2X, 3X directamente o limpiar strikes -->
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                <button onclick="triggerCustomStrikeOverlay(1)"
+                  class="py-2 px-3 rounded-xl bg-red-950/90 hover:bg-red-900 text-red-200 border border-red-500/40 font-extrabold text-xs transition active:scale-95"
+                  title="Muestra 1 X gigante con buzzer en el proyector sin cambiar el contador">
+                  Proyectar [ X ]
+                </button>
+                <button onclick="triggerCustomStrikeOverlay(2)"
+                  class="py-2 px-3 rounded-xl bg-red-950/90 hover:bg-red-900 text-red-200 border border-red-500/40 font-extrabold text-xs transition active:scale-95"
+                  title="Muestra 2 XX gigantes con buzzer en el proyector">
+                  Proyectar [ X X ]
+                </button>
+                <button onclick="triggerCustomStrikeOverlay(3)"
+                  class="py-2 px-3 rounded-xl bg-red-950/90 hover:bg-red-900 text-red-200 border border-red-500/40 font-extrabold text-xs transition active:scale-95"
+                  title="Muestra 3 XXX gigantes con buzzer en el proyector">
+                  Proyectar [ X X X ]
+                </button>
+                <button onclick="clearStrikes()"
+                  class="py-2 px-3 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-600 font-extrabold text-xs transition active:scale-95"
+                  title="Reinicia el contador de Strikes a 0 (Shift + X)">
+                  ↺ Limpiar Strikes (0)
+                </button>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- Columna Derecha (5 cols): Banco en Vivo, Asignación a Equipos, Reflexión y Cronómetro -->
+        <div class="lg:col-span-5 space-y-4">
+
+          <!-- Estado en Vivo del Banco + Asignación de Puntos -->
+          <div class="bg-slate-900 border-2 border-blue-500/50 rounded-2xl p-4 shadow-xl space-y-4">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="text-xs font-extrabold uppercase tracking-wider text-blue-300">BANCO ACUMULADO EN RONDA</div>
+                <div class="text-[11px] text-slate-400">Se suma automáticamente al proyectar respuestas</div>
+              </div>
+              <div id="boothBankDisplay" class="font-tv text-6xl text-amber-400 leading-none">0</div>
+            </div>
+
+            <div class="border-t border-slate-800 pt-3">
+              <div class="text-xs font-extrabold uppercase tracking-wider text-amber-300 mb-2">
+                2. ASIGNAR BANCO DE LA RONDA AL EQUIPO GANADOR:
+              </div>
+              <div id="boothAwardButtons" class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <!-- Botones dinámicos para dar los puntos a cada equipo o dividir -->
+              </div>
+            </div>
+          </div>
+
+          <!-- Marcadores Rápidos de Equipos (+/- 10 pts) -->
+          <div class="bg-slate-900 border border-slate-700 rounded-2xl p-4 shadow-lg space-y-2.5">
+            <div class="flex items-center justify-between">
+              <span class="text-xs font-extrabold uppercase tracking-wider text-blue-300">
+                MARCADOR GENERAL DE EQUIPOS
+              </span>
+              <button onclick="switchBoothTab('teams')" class="text-xs font-bold text-amber-400 hover:underline">
+                ✏️ Configurar equipos →
+              </button>
+            </div>
+            <div id="boothTeamsScoreList" class="space-y-2"></div>
           </div>
 
           <!-- Gancho de Reflexión Espiritual (Vista previa privada + Botón para proyectar) -->
@@ -583,78 +668,11 @@
               </div>
               <button id="boothReflectionBtn" onclick="toggleReflectionModal()"
                 class="px-4 py-2 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs shadow-md transition active:scale-95">
-                📖 Mostrar / Ocultar Reflexión en TV (Espacio)
+                📖 Proyectar Reflexión en TV (Espacio)
               </button>
             </div>
             <p id="boothReflectionPreview" class="text-xs sm:text-sm text-slate-200 bg-slate-950 p-3 rounded-xl border border-slate-800 leading-relaxed"></p>
             <p id="boothTakeawayPreview" class="text-xs text-amber-300 font-bold italic"></p>
-          </div>
-        </div>
-
-        <!-- Columna Derecha (5 cols): Banco en Vivo, Strikes, Asignación a Equipos y Cronómetro -->
-        <div class="lg:col-span-5 space-y-4">
-
-          <!-- Estado en Vivo del Banco + Asignación de Puntos -->
-          <div class="bg-slate-900 border-2 border-blue-500/50 rounded-2xl p-4 shadow-xl space-y-4">
-            <div class="flex items-center justify-between">
-              <div>
-                <div class="text-xs font-extrabold uppercase tracking-wider text-blue-300">BANCO ACUMULADO EN RONDA</div>
-                <div class="text-[11px] text-slate-400">Se suma automáticamente al revelar tarjetas</div>
-              </div>
-              <div id="boothBankDisplay" class="font-tv text-6xl text-amber-400 leading-none">0</div>
-            </div>
-
-            <div class="border-t border-slate-800 pt-3">
-              <div class="text-xs font-extrabold uppercase tracking-wider text-amber-300 mb-2">
-                3. ASIGNAR BANCO DE LA RONDA AL EQUIPO GANADOR:
-              </div>
-              <div id="boothAwardButtons" class="grid grid-cols-1 sm:grid-cols-2 gap-2">
-                <!-- Botones dinámicos para dar los puntos a cada equipo o dividir -->
-              </div>
-            </div>
-          </div>
-
-          <!-- Panel de Control de Strikes (Cruces Rojas X) -->
-          <div class="bg-slate-900 border-2 border-red-500/50 rounded-2xl p-4 shadow-xl space-y-3">
-            <div class="flex items-center justify-between">
-              <span class="text-xs font-extrabold uppercase tracking-wider text-red-400">
-                4. SISTEMA DE STRIKES (ERRORES EN PANTALLA GIGANTE)
-              </span>
-              <span id="boothStrikesCountLabel" class="px-2.5 py-0.5 rounded-full text-xs font-black bg-red-950 text-red-300 border border-red-500/40">
-                0 / 3 Strikes
-              </span>
-            </div>
-
-            <div class="grid grid-cols-3 gap-2">
-              <button onclick="triggerStrike()"
-                class="col-span-2 py-3 px-4 rounded-xl bg-red-600 hover:bg-red-500 text-white font-black text-sm shadow-lg flex items-center justify-center gap-2 transition active:scale-95">
-                <span>❌</span>
-                <span>DISPARAR STRIKE (Tecla X)</span>
-              </button>
-              <button onclick="triggerSingleErrorX()"
-                class="py-3 px-3 rounded-xl bg-red-900/80 hover:bg-red-800 text-red-100 border border-red-500/50 font-extrabold text-xs transition active:scale-95"
-                title="Muestra 1 X gigante cuando el equipo contrario falla el robo">
-                🚨 1X (Fallo Robo)
-              </button>
-            </div>
-
-            <button onclick="clearStrikes()"
-              class="w-full py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs border border-slate-700 transition">
-              ↺ Limpiar Strikes a 0 (Shift + X)
-            </button>
-          </div>
-
-          <!-- Marcadores Rápidos de Equipos (+/- 10 pts) -->
-          <div class="bg-slate-900 border border-slate-700 rounded-2xl p-4 shadow-lg space-y-2.5">
-            <div class="flex items-center justify-between">
-              <span class="text-xs font-extrabold uppercase tracking-wider text-blue-300">
-                MARCADOR GENERAL DE EQUIPOS
-              </span>
-              <button onclick="switchBoothTab('teams')" class="text-xs font-bold text-amber-400 hover:underline">
-                ✏️ Editar nombres / agregar equipos →
-              </button>
-            </div>
-            <div id="boothTeamsScoreList" class="space-y-2"></div>
           </div>
 
           <!-- Efectos Especiales: Cronómetro Relámpago y Celebración de Ganador -->
@@ -668,7 +686,7 @@
             <button onclick="triggerWinnerCelebration()"
               class="py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-extrabold text-xs flex items-center justify-center gap-2 shadow transition active:scale-95">
               <span>🏆</span>
-              <span>Declarar Ganador + Confeti</span>
+              <span>Proyectar Ganador + Confeti</span>
             </button>
           </div>
 
@@ -1087,6 +1105,7 @@
     const urlParams = new URLSearchParams(window.location.search);
     let currentWindowMode = urlParams.get("mode") === "control" ? "control" : "projector";
     let childControlWindow = null;
+    let lastProcessedEventId = null;
 
     const state = {
       rounds: JSON.parse(JSON.stringify(DEFAULT_ROUNDS)),
@@ -1151,8 +1170,12 @@
 
     function broadcastSyncEvent(effect = null) {
       saveStateToLocalStorage();
+      const eventId = `${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+      lastProcessedEventId = eventId;
+
       const message = {
         __source: "100CristianosApp",
+        eventId,
         timestamp: Date.now(),
         state: getSerializableState(),
         effect
@@ -1186,6 +1209,8 @@
 
     function handleIncomingSyncMessage(msg) {
       if (!msg || !msg.state) return;
+      if (msg.eventId && msg.eventId === lastProcessedEventId) return;
+      if (msg.eventId) lastProcessedEventId = msg.eventId;
 
       const prevBank = state.roundBank;
       const prevTeamScores = {};
@@ -1236,7 +1261,6 @@
      * para arrastrarla a la pantalla del portátil mientras el proyector muestra el juego.
      */
     function openControlBoothWindow() {
-      // Desbloquea el AudioContext en la ventana del proyector con este clic
       sound.init();
 
       const baseUrl = window.location.href.split("?")[0].split("#")[0];
@@ -1245,7 +1269,7 @@
       childControlWindow = window.open(
         boothUrl,
         "CabinaControl100Cristianos",
-        "width=1180,height=860,menubar=no,toolbar=no,location=no,status=no,resizable=yes,scrollbars=yes"
+        "width=1200,height=880,menubar=no,toolbar=no,location=no,status=no,resizable=yes,scrollbars=yes"
       );
 
       if (childControlWindow) {
@@ -1490,7 +1514,6 @@
         const preset = getTeamColorPreset(team.colorId);
         const prevScore = prevTeamScores && prevTeamScores[team.id] !== undefined ? prevTeamScores[team.id] : team.score;
 
-        // Tarjeta Limpia del Equipo para el Proyector
         const card = document.createElement("div");
         card.className = `bg-gradient-to-br ${preset.bg} ${preset.border} border-2 rounded-2xl p-3 sm:p-4 shadow-xl flex items-center justify-between gap-3 relative overflow-hidden`;
         card.innerHTML = `
@@ -1857,7 +1880,7 @@
           : "px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-300 border border-amber-400/40 font-bold text-xs transition";
       }
 
-      // Lista de Respuestas Secretas en la Cabina
+      // Lista de Respuestas Secretas en la Cabina con botón claro para saber cuál proyectar
       const ansList = document.getElementById("boothAnswersList");
       if (ansList) {
         ansList.innerHTML = "";
@@ -1865,33 +1888,37 @@
           const isRevealed = state.revealedIndices.has(idx);
           const pts = ans.points * state.multiplier;
 
-          const btn = document.createElement("button");
-          btn.onclick = () => toggleAnswerReveal(idx);
-          btn.className = `p-3 rounded-xl border-2 text-left flex items-center justify-between gap-2 transition active:scale-95 ${
+          const row = document.createElement("div");
+          row.onclick = () => toggleAnswerReveal(idx);
+          row.className = `p-3 rounded-xl border-2 cursor-pointer flex items-center justify-between gap-3 transition active:scale-[0.99] ${
             isRevealed
               ? "bg-emerald-950/90 border-emerald-400 text-emerald-100 shadow-md"
-              : "bg-slate-950 hover:bg-slate-800 border-amber-500/50 text-white"
+              : "bg-slate-950 hover:bg-slate-800 border-amber-500/60 text-white"
           }`;
-          btn.innerHTML = `
-            <div class="flex items-center gap-2.5 min-w-0">
-              <span class="w-7 h-7 rounded-lg ${
+          row.innerHTML = `
+            <div class="flex items-center gap-3 min-w-0">
+              <span class="w-9 h-9 rounded-xl ${
                 isRevealed ? "bg-emerald-500 text-slate-950" : "bg-amber-400 text-slate-950"
-              } font-black text-sm flex items-center justify-center shrink-0">
+              } font-tv text-2xl flex items-center justify-center shrink-0 shadow">
                 ${idx + 1}
               </span>
               <div class="min-w-0">
-                <div class="font-extrabold text-sm truncate">${escapeHtml(ans.text)}</div>
-                <div class="text-[10px] font-bold uppercase ${isRevealed ? "text-emerald-300" : "text-slate-400"}">
-                  ${isRevealed ? "✅ REVELADA EN TV (Clic para ocultar)" : "🔒 OCULTA (Clic para revelar)"}
+                <div class="font-extrabold text-base sm:text-lg text-white leading-tight">${escapeHtml(ans.text)}</div>
+                <div class="text-[11px] font-bold ${isRevealed ? "text-emerald-300" : "text-amber-300/90"}">
+                  Valor: ${pts} puntos ${state.multiplier > 1 ? `(Base ${ans.points} × ${state.multiplier})` : ""}
                 </div>
               </div>
             </div>
-            <div class="text-right shrink-0">
-              <span class="font-tv text-3xl text-amber-300 leading-none">${pts}</span>
-              <span class="block text-[9px] text-slate-400 font-bold">PTS</span>
-            </div>
+
+            <button class="px-3.5 py-2 rounded-xl font-black text-xs shrink-0 shadow transition ${
+              isRevealed
+                ? "bg-emerald-600 hover:bg-emerald-500 text-white"
+                : "gold-gradient hover:brightness-110 text-slate-950"
+            }">
+              ${isRevealed ? "✅ PROYECTADA EN TV (Ocultar)" : `📺 PROYECTAR #${idx + 1} EN TV`}
+            </button>
           `;
-          ansList.appendChild(btn);
+          ansList.appendChild(row);
         });
       }
 
@@ -1907,7 +1934,7 @@
       if (refBtn) {
         refBtn.textContent = state.reflectionOpen
           ? "📖 Ocultar Reflexión en TV (Activa)"
-          : "📖 Mostrar Reflexión en TV (Espacio)";
+          : "📖 Proyectar Reflexión en TV (Espacio)";
       }
 
       // Botones para asignar el Banco a cada equipo
@@ -1935,7 +1962,7 @@
 
       // Etiqueta de Strikes en Cabina
       const strikesLabel = document.getElementById("boothStrikesCountLabel");
-      if (strikesLabel) strikesLabel.textContent = `${state.strikes} / 3 Strikes`;
+      if (strikesLabel) strikesLabel.textContent = `Strikes acumulados: ${state.strikes} / 3`;
 
       // Lista de ajuste rápido de puntos de equipos en Cabina
       const scoreList = document.getElementById("boothTeamsScoreList");
@@ -1985,13 +2012,20 @@
       broadcastSyncEvent({ type: "strikeOverlay", count: state.strikes });
     }
 
-    function triggerSingleErrorX() {
-      showStrikeOverlayLocal(1);
-      broadcastSyncEvent({ type: "strikeOverlay", count: 1 });
+    function triggerCustomStrikeOverlay(count) {
+      showStrikeOverlayLocal(count);
+      broadcastSyncEvent({ type: "strikeOverlay", count });
     }
 
     function showStrikeOverlayLocal(count) {
       sound.playStrikeBuzzer();
+
+      // Mostrar indicador de confirmación en la Cabina de que se está proyectando la X
+      const boothFeedback = document.getElementById("boothStrikeActiveFeedback");
+      if (boothFeedback) {
+        boothFeedback.classList.remove("hidden");
+        boothFeedback.classList.add("inline-flex");
+      }
 
       // Mostrar el overlay gigante en el Proyector
       if (currentWindowMode === "projector") {
@@ -2014,12 +2048,12 @@
 
         overlay.classList.remove("hidden");
         overlay.classList.add("flex");
-
-        if (strikeTimeoutId) clearTimeout(strikeTimeoutId);
-        strikeTimeoutId = setTimeout(() => {
-          hideStrikeOverlay();
-        }, 1550);
       }
+
+      if (strikeTimeoutId) clearTimeout(strikeTimeoutId);
+      strikeTimeoutId = setTimeout(() => {
+        hideStrikeOverlay();
+      }, 1550);
     }
 
     function hideStrikeOverlay() {
@@ -2027,6 +2061,11 @@
       if (overlay) {
         overlay.classList.add("hidden");
         overlay.classList.remove("flex");
+      }
+      const boothFeedback = document.getElementById("boothStrikeActiveFeedback");
+      if (boothFeedback) {
+        boothFeedback.classList.add("hidden");
+        boothFeedback.classList.remove("inline-flex");
       }
     }
 
